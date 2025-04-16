@@ -54,7 +54,7 @@ export function fetchCreateCard(cardData) {
     });
 }
 
-export function updateCard(cardId, updates) {
+export function fetchUpdateCard(cardId, updates) {
   return fetch(`/api/cards/${cardId}`, {
     method: "PUT",
     credentials: "include",
@@ -72,7 +72,28 @@ export function updateCard(cardId, updates) {
         .then((err) => Promise.reject(err));
     });
 }
-export function deleteCard(cardId) {
+
+export function fetchUpdateStats(cardId, { wasCorrect }) {
+  return fetch(`/api/cards/${cardId}/stats`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ wasCorrect }),
+  })
+    .catch(() => Promise.reject({ error: "networkError" }))
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      return response
+        .json()
+        .catch((error) => Promise.reject({ error }))
+        .then((err) => Promise.reject(err));
+    });
+}
+export function fetchDeleteCard(cardId) {
   return fetch(`/api/cards/${cardId}`, {
     method: "DELETE",
     credentials: "include",

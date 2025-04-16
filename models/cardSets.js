@@ -12,7 +12,7 @@ function getCardSetsByUser(username) {
 }
 
 function getCardSetById(username, setId) {
-  return getCardSetByUser(username).find((set) => set.id === setId);
+  return getCardSetsByUser(username).find((set) => set.id === setId);
 }
 
 function createCardSet(username, { title, cardIds }) {

@@ -3,19 +3,28 @@ import { fetchLogin, fetchLogout, fetchSession } from "./services/authServices";
 import { fetchGetCard, fetchGetCards } from "./services/cardServices";
 import { fetchGetCardSet, fetchGetCardSets } from "./services/cardSetServices";
 
+import CardSetPage from "./Pages/CardSetPage";
+import CardsPage from "./Pages/CardsPage";
+import PracticePage from "./Pages/PracticePage";
 import "./App.css";
 import Login from "./Login";
 import Status from "./Status";
-import { LOGIN_STATUS, CLIENT, SERVER } from "./constants";
-import Controls from "./Controls";
+import { LOGIN_STATUS, PAGE, CLIENT, SERVER } from "./constants";
+import Controls from "./components/Controls";
 
 function App() {
   const [loginStatus, setLoginStatus] = useState(LOGIN_STATUS.NOT_LOGGED_IN);
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
-  const [isPending, setIsPending] = useState(false);
+  const [page, setPage] = useState("");
   const [cardSets, setCardSets] = useState([]);
-  const [cardsBySet, setCardsBySet] = useState({});
+  const [cards, setCards] = useState([]);
+  const [selectedSetId, setSelectedSetId] = useState(null);
+  const [isPracticing, setIsPracticing] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+
+  const selectedSet = cardSets.find((set) => set.id === selectedSetId);
+
   useEffect(() => {
     checkSession();
   }, []);
@@ -25,24 +34,24 @@ function App() {
       .then((session) => {
         setUsername(session.username);
         setLoginStatus(LOGIN_STATUS.IS_LOGGED_IN);
-
+        setCards([]);
+        setSelectedSetId(null);
+        setIsPracticing(false);
+        setPage(PAGE.CARD_SETS);
+        setError("");
         return fetchGetCardSets();
-      })
-      .then(({ sets }) => {
-        setCardSets(sets);
-        const allCardIds = sets.flatMap((set) => set.cardIds);
-        return fetchGetCards(allCardIds).then((cards) => {
-          const grouped = {};
-          sets.forEach((set) => {
-            grouped[set.id] = cards.filter((card) =>
-              set.cardIds.includes(card.id)
-            );
-          });
-          setCardsBySet(grouped);
-        });
       })
       .catch((err) => {
         if (err?.error === SERVER.AUTH_MISSING) {
+          return Promise.reject({ error: CLIENT.NO_SESSION });
+        }
+        return Promise.reject(err);
+      })
+      .then(({ sets }) => {
+        setCardSets(sets);
+      })
+      .catch((err) => {
+        if (err?.error === CLIENT.NO_SESSION) {
           setLoginStatus(LOGIN_STATUS.NOT_LOGGED_IN);
           return;
         }
@@ -52,8 +61,24 @@ function App() {
 
   function onRefresh() {
     setError("");
+    onGetSet();
   }
 
+  function onGetSet() {
+    setIsPending(true);
+    fetchGetCardSets()
+      .then(({ sets }) => {
+        setCardSets(sets);
+        setIsPending(false);
+        setCards([]);
+        setSelectedSetId();
+        setIsPracticing(false);
+      })
+      .catch((err) => {
+        setIsPending(false);
+        setError(err?.error || "ERROR");
+      });
+  }
   function onLogin(username) {
     setIsPending(true);
     fetchLogin(username)
@@ -62,21 +87,8 @@ function App() {
         setIsPending(false);
         setUsername(username);
         setLoginStatus(LOGIN_STATUS.IS_LOGGED_IN);
-
-        return fetchGetCardSets();
-      })
-      .then(({ sets }) => {
-        setCardSets(sets);
-        const allCardIds = sets.flatMap((set) => set.cardIds);
-        return fetchGetCards(allCardIds).then((cards) => {
-          const grouped = {};
-          sets.forEach((set) => {
-            grouped[set.id] = cards.filter((card) =>
-              set.cardIds.includes(card.id)
-            );
-          });
-          setCardsBySet(grouped);
-        });
+        setPage(PAGE.CARD_SETS);
+        onGetSet();
       })
       .catch((err) => {
         setError(err?.error || "ERROR");
@@ -92,6 +104,42 @@ function App() {
     });
   }
 
+  function onGetCards(setId) {
+    const set = cardSets.find((s) => s.id === setId);
+    if (!set) {
+      return Promise.reject({ error: "Set not found" });
+    }
+
+    const cardIds = set.cardIds || [];
+    return fetchGetCards(cardIds);
+  }
+
+  function onSelectSet(setId) {
+    setSelectedSetId(setId);
+    setPage(PAGE.CARDS);
+
+    onGetCards(setId)
+      .then((cards) => {
+        setCards(cards);
+      })
+      .catch((err) => {
+        setError(err?.error || "ERROR");
+      });
+  }
+  function onExit() {
+    setPage(PAGE.CARDS);
+    onGetCards(selectedSetId)
+      .then((cards) => {
+        setCards(cards);
+      })
+      .catch((err) => {
+        setError(err?.error || "ERROR");
+      });
+  }
+  function onPractice() {
+    setPage(PAGE.PRACTICE);
+    return;
+  }
   return (
     <div className="app">
       <main>
@@ -103,19 +151,23 @@ function App() {
           <div className="content">
             <Controls onLogout={onLogout} onRefresh={onRefresh} />
             <p>Hello, {username}</p>
-            {cardSets.map((set) => (
-              <div key={set.id} className="cardset">
-                <h2>{set.title}</h2>
-                <ul>
-                  {cardsBySet[set.id]?.map((card) => (
-                    <li key={card.id}>
-                      <strong>Q:</strong> {card.question} <br />
-                      <strong>A:</strong> {card.answer}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {page === PAGE.CARD_SETS && (
+              <CardSetPage
+                cardSets={cardSets}
+                isPending={isPending}
+                onSelectSet={onSelectSet}
+              />
+            )}
+            {page === PAGE.CARDS && selectedSet && (
+              <CardsPage
+                cards={cards}
+                title={selectedSet.title}
+                onPractice={onPractice}
+              />
+            )}
+            {page === PAGE.PRACTICE && selectedSet && (
+              <PracticePage cards={cards} onExit={onExit} />
+            )}
           </div>
         )}
       </main>

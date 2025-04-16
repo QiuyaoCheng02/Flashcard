@@ -97,7 +97,12 @@ cardController.updateCardStats = function (req, res) {
   }
 
   cards.updateCardStats(cardId, wasCorrect);
-  res.json({ message: `stats-updated`, cardId });
+  res.json({
+    message: `stats-updated`,
+    cardId,
+    correctCount: card.correctCount,
+    totalCount: card.totalCount,
+  });
 };
 
 cardController.deleteCard = function (req, res) {

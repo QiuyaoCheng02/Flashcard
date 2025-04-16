@@ -41,12 +41,20 @@ function updateCard(cardId, updates) {
 }
 
 function updateCardStats(cardId, wasCorrect) {
+  console.log("update stats ");
   const card = cardsById[cardId];
   if (!card) return;
   card.stats.timesAttempted += 1;
   if (!wasCorrect) {
     card.stats.timesWrong += 1;
   }
+  console.log(
+    card.id,
+    "times attempted:",
+    card.stats.timesAttempted,
+    " times wrong: ",
+    card.stats.timesWrong
+  );
 }
 
 function deleteCard(cardId) {

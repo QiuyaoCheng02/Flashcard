@@ -79,6 +79,7 @@ function App() {
         setError(err?.error || "ERROR");
       });
   }
+
   function onLogin(username) {
     setIsPending(true);
     fetchLogin(username)
@@ -156,6 +157,8 @@ function App() {
                 cardSets={cardSets}
                 isPending={isPending}
                 onSelectSet={onSelectSet}
+                onRefresh={onRefresh}
+                setError={setError}
               />
             )}
             {page === PAGE.CARDS && selectedSet && (

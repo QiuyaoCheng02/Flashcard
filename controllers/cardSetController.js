@@ -39,14 +39,14 @@ cardSetController.createCardSet = function (req, res) {
     res.status(401).json({ error: `auth-missing` });
     return;
   }
-  const { title, cardIds } = req.body;
+  const { title } = req.body;
 
-  if (!title || !Array.isArray(cardIds)) {
+  if (!title) {
     res.status(400).json({ error: `invalid-input` });
     return;
   }
 
-  const newSet = cardSets.createCardSet(username, { title, cardIds });
+  const newSet = cardSets.createCardSet(username, { title });
   res.json(newSet);
 };
 cardSetController.deleteCardSet = function (req, res) {

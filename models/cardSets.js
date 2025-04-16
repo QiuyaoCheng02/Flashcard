@@ -15,11 +15,11 @@ function getCardSetById(username, setId) {
   return getCardSetsByUser(username).find((set) => set.id === setId);
 }
 
-function createCardSet(username, { title, cardIds }) {
+function createCardSet(username, { title }) {
   const newSet = {
     id: generateSetId(),
     title,
-    cardIds: [...cardIds],
+    cardIds: [],
     bestScore: null,
     isPublic: false,
     stats: {

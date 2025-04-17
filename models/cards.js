@@ -1,14 +1,15 @@
 import { randomUUID as uuid } from "crypto";
 
-const cardsById = {};
+const cards = {};
 
 function generateCardId() {
   return `card-${uuid()}`;
 }
 
 function createCard({ question, answer, createdBy }) {
+  console.log("create card");
   const id = generateCardId();
-  cardsById[id] = {
+  cards[id] = {
     id,
     question,
     answer,
@@ -18,20 +19,23 @@ function createCard({ question, answer, createdBy }) {
       timesWrong: 0,
     },
   };
-  return cardsById[id];
+  console.log(cards[id]);
+  console.log("cards: ", cards);
+
+  return cards[id];
 }
 //get one card
 function getCardById(cardId) {
-  return cardsById[cardId];
+  return cards[cardId];
 }
 
 //generate whole set
 function getCardsByIds(cardIds) {
-  return cardIds.map((id) => cardsById[id]).filter(Boolean);
+  return cardIds.map((id) => cards[id]).filter(Boolean);
 }
 
 function updateCard(cardId, updates) {
-  const card = cardsById[cardId];
+  const card = cards[cardId];
   if (!card) return null;
 
   card.question = updates.question || card.question;
@@ -41,25 +45,17 @@ function updateCard(cardId, updates) {
 }
 
 function updateCardStats(cardId, wasCorrect) {
-  console.log("update stats ");
-  const card = cardsById[cardId];
+  const card = cards[cardId];
   if (!card) return;
   card.stats.timesAttempted += 1;
   if (!wasCorrect) {
     card.stats.timesWrong += 1;
   }
-  console.log(
-    card.id,
-    "times attempted:",
-    card.stats.timesAttempted,
-    " times wrong: ",
-    card.stats.timesWrong
-  );
 }
 
 function deleteCard(cardId) {
-  if (!cardsById[cardId]) return false;
-  delete cardsById[cardId];
+  if (!cards[cardId]) return false;
+  delete cards[cardId];
   return true;
 }
 

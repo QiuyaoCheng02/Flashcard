@@ -30,7 +30,7 @@ app.delete(
 
 // cards
 app.get("/api/cards/:cardId", cardController.getCard);
-app.post("/api/cards/list", cardController.getCards);
+app.get("/api/cardsets/:setId/cards", cardController.getCardsBySet);
 app.post("/api/cards", cardController.createCard);
 app.put("/api/cards/:cardId", cardController.updateCard);
 app.patch("/api/cards/:cardId/stats", cardController.updateCardStats);

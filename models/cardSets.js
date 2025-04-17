@@ -8,36 +8,33 @@ function generateSetId() {
 }
 
 function getCardSetsByUser(username) {
-  return cardSets[username] || [];
+  return Object.values(cardSets).filter((set) => set.createdBy === username);
 }
 
-function getCardSetById(username, setId) {
-  return getCardSetsByUser(username).find((set) => set.id === setId);
+function getCardSetById(setId) {
+  return cardSets[setId];
 }
 
 function createCardSet(username, { title }) {
   const newSet = {
     id: generateSetId(),
     title,
+    createdBy: username,
     cardIds: [],
     bestScore: null,
     isPublic: false,
     stats: {
       totalAttempts: 0,
-      cumulativeAccuracy: 0,
+      averageAccuracy: 0,
     },
   };
 
-  if (!cardSets[username]) {
-    cardSets[username] = [];
-  }
-
-  cardSets[username].push(newSet);
+  cardSets[newSet.id] = newSet;
   return newSet;
 }
 
-function updateCardSetTitle(username, setId, newTitle) {
-  const set = getCardSetById(username, setId);
+function updateCardSetTitle(setId, newTitle) {
+  const set = getCardSetById(setId);
   if (!set) {
     return null;
   }
@@ -45,82 +42,75 @@ function updateCardSetTitle(username, setId, newTitle) {
   return set;
 }
 
-function updateBestScore(username, setId, score) {
-  const set = getCardSetById(username, setId);
+function updateBestScore(setId, score) {
+  const set = getCardSetById(setId);
   if (!set) {
-    return;
+    return null;
   }
   if (set.bestScore === null || score > set.bestScore) {
     set.bestScore = score;
   }
 }
 
-function addCardToSet(username, setId, cardId) {
-  const set = getCardSetById(username, setId);
+function addCardToSet(setId, cardId) {
+  const set = getCardSetById(setId);
   if (!set) {
-    return;
+    console.log("no set ", setId);
+    console.log(" current cardsets: ", cardSets);
+    return null;
   }
   if (!set.cardIds.includes(cardId)) {
     set.cardIds.push(cardId);
+    console.log("created: ", cardSets);
   }
+  console.log("cardsets: ", cardSets);
 }
-function deleteCardSet(username, setId) {
-  if (!cardSets[username]) {
+function deleteCardSet(setId) {
+  if (!cardSets[setId]) {
     return false;
   }
-  const index = cardSets[username].findIndex((set) => set.id === setId);
-  if (index === -1) {
-    return false;
-  }
-  cardSets[username].splice(index, 1);
+  delete cardSets[setId];
   return true;
 }
 
-function removeCardFromSet(username, setId, cardId) {
-  const set = getCardSetById(username, setId);
+function removeCardFromSet(setId, cardId) {
+  const set = getCardSetById(setId);
   if (!set) {
-    return false;
+    return null;
   }
   set.cardIds = set.cardIds.filter((id) => id !== cardId);
   return true;
 }
 
-function recordAccuracy(set, newAccuracy) {
+function recordAccuracy(setId, newAccuracy) {
+  const set = getCardSetById(setId);
+  if (!set) {
+    return null;
+  }
   const { totalAttempts, averageAccuracy } = set.stats;
   set.stats.totalAttempts += 1;
   set.stats.averageAccuracy =
     (averageAccuracy * totalAttempts + newAccuracy) / set.stats.totalAttempts;
 }
 
-function getAverageAccuracy(username, setId) {
-  const set = getCardSetById(username, setId);
-  if (!set || set.stats.totalAttempts === 0) {
+function getAverageAccuracy(setId) {
+  const set = getCardSetById(setId);
+  if (!set) {
+    return null;
+  }
+  if (set.stats.totalAttempts === 0) {
     return "no attempts yet!";
   }
   return set.stats.averageAccuracy;
 }
 
 //default card set
-cardSets["user1"] = [
-  {
-    id: generateSetId(),
-    title: "Default Math Set",
-    cardIds: [...defaultCardIds1],
-    bestScore: null,
-    isPublic: false,
-    stats: { totalAttempts: 0, averageAccuracy: 0 },
-  },
-];
-cardSets["user2"] = [
-  {
-    id: generateSetId(),
-    title: "Default Math Set",
-    cardIds: [...defaultCardIds2],
-    bestScore: null,
-    isPublic: false,
-    stats: { totalAttempts: 0, averageAccuracy: 0 },
-  },
-];
+const defaultSet1 = createCardSet("user1", { title: "Default Math Set" });
+defaultSet1.cardIds.push(...defaultCardIds1);
+
+const defaultSet2 = createCardSet("user2", { title: "Default Math Set" });
+defaultSet2.cardIds.push(...defaultCardIds2);
+
 export default {
   getCardSetsByUser,
   getCardSetById,

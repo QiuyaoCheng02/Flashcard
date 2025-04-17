@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchLogin, fetchLogout, fetchSession } from "./services/authServices";
-import { fetchGetCard, fetchGetCards } from "./services/cardServices";
+import { fetchGetCardsBySetId } from "./services/cardServices";
 import { fetchGetCardSet, fetchGetCardSets } from "./services/cardSetServices";
 
 import CardSetPage from "./Pages/CardSetPage";
@@ -106,13 +106,8 @@ function App() {
   }
 
   function onGetCards(setId) {
-    const set = cardSets.find((s) => s.id === setId);
-    if (!set) {
-      return Promise.reject({ error: "Set not found" });
-    }
-
-    const cardIds = set.cardIds || [];
-    return fetchGetCards(cardIds);
+    setIsPending(true);
+    return fetchGetCardsBySetId(setId);
   }
 
   function onSelectSet(setId) {
@@ -121,10 +116,29 @@ function App() {
 
     onGetCards(setId)
       .then((cards) => {
+        setIsPending(false);
         setCards(cards);
       })
       .catch((err) => {
+        setIsPending(false);
         setError(err?.error || "ERROR");
+      });
+  }
+  function onRefreshCards() {
+    if (!selectedSetId) {
+      setError("No set selected");
+      return;
+    }
+
+    onGetCards(selectedSetId)
+      .then((cards) => {
+        setCards(cards);
+        setError("");
+        setIsPending(false);
+      })
+      .catch((err) => {
+        setError(err?.error || "ERROR");
+        setIsPending(false);
       });
   }
   function onExit() {
@@ -166,6 +180,10 @@ function App() {
                 cards={cards}
                 title={selectedSet.title}
                 onPractice={onPractice}
+                onRefreshCards={onRefreshCards}
+                setError={setError}
+                isPending={isPending}
+                selectedSetId={selectedSetId}
               />
             )}
             {page === PAGE.PRACTICE && selectedSet && (

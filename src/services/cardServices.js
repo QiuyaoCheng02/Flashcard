@@ -16,12 +16,10 @@ export function fetchGetCard(cardId) {
     });
 }
 
-export function fetchGetCards(cardIds) {
-  return fetch("/api/cards/list", {
-    method: "POST",
+export function fetchGetCardsBySetId(setId) {
+  return fetch(`/api/cardsets/${setId}/cards`, {
+    method: "GET",
     credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cardIds }),
   })
     .catch(() => Promise.reject({ error: "networkError" }))
     .then((response) => {

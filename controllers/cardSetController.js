@@ -78,7 +78,7 @@ cardSetController.removeCardFromSet = function (req, res) {
 
   const { setId, cardId } = req.params;
 
-  const deleted = cardSets.deleteCardFromSet(setId, cardId);
+  const deleted = cardSets.removeCardFromSet(setId, cardId);
 
   if (!deleted) {
     res

@@ -1,4 +1,5 @@
 import cards from "../models/cards.js";
+import cardSets from "../models/cardSets.js";
 import sessions from "../models/sessions.js";
 import users from "../models/users.js";
 const cardController = {};
@@ -22,15 +23,23 @@ cardController.getCard = function (req, res) {
 };
 
 //for card set
-cardController.getCards = function (req, res) {
+cardController.getCardsBySet = function (req, res) {
   const sid = req.cookies.sid;
   const username = sid ? sessions.getSessionUser(sid) : "";
   if (!sid || !users.isValidUsername(username)) {
     res.status(401).json({ error: `auth-missing` });
     return;
   }
-  const { cardIds } = req.body;
-  const allCards = cards.getCardsByIds(cardIds || []);
+  const { setId } = req.params;
+  const set = cardSets.getCardSetById(setId);
+  if (!set) {
+    res
+      .status(404)
+      .json({ error: "noSuchSet", message: `No set with id ${setId}` });
+    return;
+  }
+
+  const allCards = cards.getCardsByIds(set.cardIds || []);
   res.json(allCards);
 };
 
@@ -42,13 +51,15 @@ cardController.createCard = function (req, res) {
     return;
   }
 
-  const { question, answer, createdBy } = req.body;
+  const { setId, question, answer } = req.body;
+  const createdBy = username;
   if (!question || !answer || !createdBy) {
     res.status(400).json({ error: `missing-fields` });
     return;
   }
 
   const newCard = cards.createCard({ question, answer, createdBy });
+  cardSets.addCardToSet(setId, newCard.id);
   res.json(newCard);
 };
 

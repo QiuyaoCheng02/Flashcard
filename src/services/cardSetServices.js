@@ -32,7 +32,7 @@ export function fetchGetCardSet(setId) {
     });
 }
 
-export function createCardSet(data) {
+export function fetchCreateCardSet(data) {
   return fetch("/api/cardsets", {
     method: "POST",
     credentials: "include",
@@ -51,9 +51,9 @@ export function createCardSet(data) {
     });
 }
 
-export function updateCardSetTitle(setId, newTitle) {
+export function fetchUpdateCardSetTitle(setId, newTitle) {
   return fetch(`/api/cardsets/${setId}`, {
-    method: "PUT",
+    method: "PATCH",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title: newTitle }),
@@ -70,7 +70,7 @@ export function updateCardSetTitle(setId, newTitle) {
     });
 }
 
-export function deleteCardSet(setId) {
+export function fetchDeleteCardSet(setId) {
   return fetch(`/api/cardsets/${setId}`, {
     method: "DELETE",
     credentials: "include",
@@ -87,7 +87,7 @@ export function deleteCardSet(setId) {
     });
 }
 
-export function removeCardFromSet(setId, cardId) {
+export function fetchRemoveCardFromSet(setId, cardId) {
   return fetch(`/api/cardsets/${setId}/cards/${cardId}`, {
     method: "DELETE",
     credentials: "include",

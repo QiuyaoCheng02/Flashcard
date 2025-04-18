@@ -7,7 +7,6 @@ function generateCardId() {
 }
 
 function createCard({ question, answer, createdBy }) {
-  console.log("create card");
   const id = generateCardId();
   cards[id] = {
     id,
@@ -19,8 +18,6 @@ function createCard({ question, answer, createdBy }) {
       timesWrong: 0,
     },
   };
-  console.log(cards[id]);
-  console.log("cards: ", cards);
 
   return cards[id];
 }

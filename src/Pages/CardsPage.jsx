@@ -1,8 +1,9 @@
 import CardItem from "../components/CardItem";
 import AddCardForm from "../components/AddCardForm";
-import { fetchCreateCard } from "../services/cardServices";
+import { fetchCreateCard, fetchUpdateCard } from "../services/cardServices";
 import { useState } from "react";
-
+import { fetchRemoveCardFromSet } from "../services/cardSetServices";
+import Loading from "../Loading";
 export default function CardsPage({
   cards,
   title,
@@ -13,6 +14,23 @@ export default function CardsPage({
   selectedSetId,
 }) {
   const [isAdding, setIsAdding] = useState(false);
+  const SHOW = {
+    PENDING: "pending",
+    EMPTY: "empty",
+    CARDS: "cards",
+    ADDING: "adding",
+  };
+
+  let show;
+  if (isPending) {
+    show = SHOW.PENDING;
+  } else if (isAdding) {
+    show = SHOW.ADDING;
+  } else if (!Object.keys(cards).length) {
+    show = SHOW.EMPTY;
+  } else {
+    show = SHOW.CARDS;
+  }
 
   function handleCreateCard(question, answer) {
     const cardData = { setId: selectedSetId, question, answer };
@@ -28,10 +46,35 @@ export default function CardsPage({
       });
   }
 
+  function onEdit(cardId, updates) {
+    fetchUpdateCard(cardId, updates)
+      .then(() => {
+        setError("");
+        return onRefreshCards();
+      })
+      .catch((err) => {
+        setError(err?.error || "ERROR");
+      });
+  }
+
+  function onDelete(setId, cardId) {
+    fetchRemoveCardFromSet(setId, cardId)
+      .then(() => {
+        setError("");
+        return onRefreshCards();
+      })
+      .catch((err) => {
+        setError(err?.error || "ERROR");
+      });
+  }
+
   return (
     <div className="Cards-list">
       <h2>Cards in {title}</h2>
-      {isAdding ? (
+      {show === SHOW.PENDING && (
+        <Loading className="cardSets__waiting">Loading Cards...</Loading>
+      )}
+      {show === SHOW.ADDING ? (
         <AddCardForm
           onSubmit={handleCreateCard}
           onCancel={() => setIsAdding(false)}
@@ -39,8 +82,16 @@ export default function CardsPage({
       ) : (
         <button onClick={() => setIsAdding(true)}>Add Card</button>
       )}
-      {isPending && <p>Loading card sets...</p>}
-      <CardItem cards={cards} />
+      {show === SHOW.EMPTY && <p>You have no card sets yet. Try to add one!</p>}
+      {show === SHOW.CARDS && (
+        <ul className="cards">
+          {Object.values(cards).map((card) => (
+            <li className="card" key={card.id}>
+              <CardItem card={card} onDelete={onDelete} onEdit={onEdit} />
+            </li>
+          ))}
+        </ul>
+      )}
       <button onClick={onPractice}>Start Practice</button>
     </div>
   );

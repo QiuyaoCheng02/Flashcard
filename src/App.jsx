@@ -133,6 +133,7 @@ function App() {
     onGetCards(selectedSetId)
       .then((cards) => {
         setCards(cards);
+
         setError("");
         setIsPending(false);
       })

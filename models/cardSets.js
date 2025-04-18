@@ -55,15 +55,11 @@ function updateBestScore(setId, score) {
 function addCardToSet(setId, cardId) {
   const set = getCardSetById(setId);
   if (!set) {
-    console.log("no set ", setId);
-    console.log(" current cardsets: ", cardSets);
     return null;
   }
   if (!set.cardIds.includes(cardId)) {
     set.cardIds.push(cardId);
-    console.log("created: ", cardSets);
   }
-  console.log("cardsets: ", cardSets);
 }
 function deleteCardSet(setId) {
   if (!cardSets[setId]) {

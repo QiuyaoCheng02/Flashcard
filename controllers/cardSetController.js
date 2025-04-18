@@ -49,6 +49,7 @@ cardSetController.createCardSet = function (req, res) {
   const newSet = cardSets.createCardSet(username, { title });
   res.json(newSet);
 };
+
 cardSetController.deleteCardSet = function (req, res) {
   const sid = req.cookies.sid;
   const username = sid ? sessions.getSessionUser(sid) : "";
@@ -68,6 +69,27 @@ cardSetController.deleteCardSet = function (req, res) {
   res.json({ deleted });
 };
 
+cardSetController.editSetTitle = function (req, res) {
+  const sid = req.cookies.sid;
+  const username = sid ? sessions.getSessionUser(sid) : "";
+  if (!sid || !users.isValidUsername(username)) {
+    res.status(401).json({ error: `auth-missing` });
+    return;
+  }
+  const { setId } = req.params;
+  const set = cardSets.getCardSetById(setId);
+  if (!set) {
+    res
+      .status(404)
+      .json({ error: `noSuchId`, message: `No Set with id ${setId}` });
+    return;
+  }
+
+  const { title } = req.body;
+  set.title = title;
+
+  res.json({ title });
+};
 cardSetController.removeCardFromSet = function (req, res) {
   const sid = req.cookies.sid;
   const username = sid ? sessions.getSessionUser(sid) : "";

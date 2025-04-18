@@ -54,7 +54,7 @@ export function fetchCreateCard(cardData) {
 
 export function fetchUpdateCard(cardId, updates) {
   return fetch(`/api/cards/${cardId}`, {
-    method: "PUT",
+    method: "PATCH",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(updates),

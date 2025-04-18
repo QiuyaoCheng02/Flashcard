@@ -21,7 +21,7 @@ app.delete("/api/session", authController.endSession);
 app.get("/api/cardsets", cardSetController.getCardSets);
 app.get("/api/cardsets/:setId", cardSetController.getCardSet);
 app.post("/api/cardsets", cardSetController.createCardSet);
-//app.put("/api/cardsets/:setId", cardSetController.updateTitle);
+app.patch("/api/cardsets/:setId", cardSetController.editSetTitle);
 app.delete("/api/cardsets/:setId", cardSetController.deleteCardSet);
 app.delete(
   "/api/cardsets/:setId/cards/:cardId",
@@ -32,7 +32,7 @@ app.delete(
 app.get("/api/cards/:cardId", cardController.getCard);
 app.get("/api/cardsets/:setId/cards", cardController.getCardsBySet);
 app.post("/api/cards", cardController.createCard);
-app.put("/api/cards/:cardId", cardController.updateCard);
+app.patch("/api/cards/:cardId", cardController.updateCard);
 app.patch("/api/cards/:cardId/stats", cardController.updateCardStats);
 app.delete("/api/cards/:cardId", cardController.deleteCard);
 

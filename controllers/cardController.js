@@ -73,7 +73,7 @@ cardController.updateCard = function (req, res) {
 
   const { cardId } = req.params;
   const updates = req.body;
-  const updatedCard = cards.updateCardContent(cardId, updates);
+  const updatedCard = cards.updateCard(cardId, updates);
   if (!updatedCard) {
     res
       .status(404)

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PAGE } from "../constants";
 import "./Login.css";
 
-function LoginPage({ onLogin, setPage }) {
+function LoginPage({ onLogin, dispatch }) {
   const [loginName, setLoginName] = useState("");
 
   function handleLogin(e) {
@@ -34,7 +34,10 @@ function LoginPage({ onLogin, setPage }) {
         <button type="submit" className="btn">
           Submit
         </button>
-        <button type="button" onClick={() => setPage(PAGE.REGISTER)}>
+        <button
+          type="button"
+          onClick={() => dispatch({ type: "toRegisterPage" })}
+        >
           Create New Account
         </button>
       </form>

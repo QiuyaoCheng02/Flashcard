@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PAGE } from "../constants";
 import "./Login.css";
 
-function RegsiterPage({ onRegister, setPage }) {
+function RegsiterPage({ onRegister, dispatch }) {
   const [RegisterName, setLoginName] = useState("");
 
   function handleLogin(e) {
@@ -37,7 +37,7 @@ function RegsiterPage({ onRegister, setPage }) {
         <button
           type="button"
           className="btn"
-          onClick={() => setPage(PAGE.LOGIN)}
+          onClick={() => dispatch({ type: "toLoginPage" })}
         >
           Already Have an Account?
         </button>

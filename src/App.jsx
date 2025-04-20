@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import {
   fetchLogin,
   fetchLogout,
@@ -16,20 +16,98 @@ import LoginPage from "./Pages/LoginPage";
 import Status from "./Status";
 import { LOGIN_STATUS, PAGE, CLIENT, SERVER } from "./constants";
 import Controls from "./components/Controls";
-import FlashCard from "./components/FlashCard";
+
+const initState = {
+  loginStatus: LOGIN_STATUS.NOT_LOGGED_IN,
+  username: "",
+  page: PAGE.LOGIN,
+  error: "",
+  cardSets: [],
+  cards: [],
+  selectedSetId: null,
+  isPending: false,
+  isPracticing: false,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "register":
+      return {
+        ...state,
+        page: PAGE.REGISTER,
+        error: "",
+      };
+    case "login":
+      return {
+        ...state,
+        loginStatus: LOGIN_STATUS.IS_LOGGED_IN,
+        username: action.username,
+        page: PAGE.CARD_SETS,
+        cardSets: [],
+        cards: [],
+        selectedSetId: null,
+        error: "",
+        isPending: false,
+        isPracticing: false,
+      };
+    case "toLoginPage":
+      return {
+        ...state,
+        page: PAGE.LOGIN,
+        error: "",
+      };
+    case "toRegisterPage":
+      return {
+        ...state,
+        page: PAGE.REGISTER,
+        error: "",
+      };
+    case "logout":
+      return {
+        ...state,
+        error: "",
+        username: "",
+        loginStatus: LOGIN_STATUS.NOT_LOGGED_IN,
+        page: PAGE.LOGIN,
+      };
+    case "onGetCards":
+      return {
+        ...state,
+        selectedSetId: action.selectedSetId,
+        cards: action.cards,
+        isPending: false,
+        error: "",
+      };
+    case "onPractice":
+      return {
+        ...state,
+        page: PAGE.PRACTICE,
+        error: "",
+      };
+    case "setError":
+      return { ...state, error: action.error };
+    case "setPage":
+      return { ...state, page: action.page };
+    case "setCardSets":
+      return { ...state, cardSets: action.cardSets };
+    case "setCards":
+      return { ...state, cards: action.cards };
+    case "setSelectedSetId":
+      return { ...state, selectedSetId: action.setId };
+    case "setPending":
+      return { ...state, isPending: action.isPending };
+    case "setPracticing":
+      return { ...state, isPracticing: action.isPracticing };
+    default:
+      return state;
+  }
+}
 
 function App() {
-  const [loginStatus, setLoginStatus] = useState(LOGIN_STATUS.NOT_LOGGED_IN);
-  const [username, setUsername] = useState("");
-  const [error, setError] = useState("");
-  const [page, setPage] = useState(PAGE.LOGIN);
-  const [cardSets, setCardSets] = useState([]);
-  const [cards, setCards] = useState([]);
-  const [selectedSetId, setSelectedSetId] = useState(null);
-  const [isPracticing, setIsPracticing] = useState(false);
-  const [isPending, setIsPending] = useState(false);
-
-  const selectedSet = cardSets.find((set) => set.id === selectedSetId);
+  const [state, dispatch] = useReducer(reducer, initState);
+  const selectedSet = state.cardSets.find(
+    (set) => set.id === state.selectedSetId
+  );
 
   useEffect(() => {
     checkSession();
@@ -38,13 +116,7 @@ function App() {
   function checkSession() {
     fetchSession()
       .then((session) => {
-        setUsername(session.username);
-        setLoginStatus(LOGIN_STATUS.IS_LOGGED_IN);
-        setCards([]);
-        setSelectedSetId(null);
-        setIsPracticing(false);
-        setPage(PAGE.CARD_SETS);
-        setError("");
+        dispatch({ type: "login", username: session.username });
         return fetchGetCardSets();
       })
       .catch((err) => {
@@ -54,165 +126,171 @@ function App() {
         return Promise.reject(err);
       })
       .then(({ sets }) => {
-        setCardSets(sets);
+        dispatch({ type: "setCardSets", cardSets: sets });
       })
       .catch((err) => {
         if (err?.error === CLIENT.NO_SESSION) {
-          setLoginStatus(LOGIN_STATUS.NOT_LOGGED_IN);
+          dispatch({ type: "logout" });
           return;
         }
-        setError(err?.error || "ERROR");
+        dispatch({ type: "setError", error: err?.error || "ERROR" });
       });
   }
 
   function onRefresh() {
-    setError("");
+    dispatch({ type: "setError", error: "" });
     onGetSet();
   }
 
   function onGetSet() {
-    setIsPending(true);
+    dispatch({ type: "setPending", isPending: true });
     fetchGetCardSets()
       .then(({ sets }) => {
-        setCardSets(sets);
-        setIsPending(false);
-        setCards([]);
-        setSelectedSetId();
-        setIsPracticing(false);
+        dispatch({ type: "setCardSets", cardSets: sets });
+        dispatch({ type: "setPending", isPending: false });
+        dispatch({ type: "setCards", cards: [] });
+        dispatch({ type: "setSelectedSetId", selectedSetId: null });
+        dispatch({ type: "setPracticing", isPracticing: false });
       })
       .catch((err) => {
-        setIsPending(false);
-        setError(err?.error || "ERROR");
+        dispatch({ type: "setPending", isPending: false });
+        dispatch({ type: "setError", error: err?.error || "ERROR" });
       });
   }
 
   function onLogin(username) {
-    setIsPending(true);
+    dispatch({ type: "setPending", isPending: true });
     fetchLogin(username)
       .then(({ username }) => {
-        setError("");
-        setIsPending(false);
-        setUsername(username);
-        setLoginStatus(LOGIN_STATUS.IS_LOGGED_IN);
-        setPage(PAGE.CARD_SETS);
+        dispatch({ type: "login", username: username });
         onGetSet();
       })
       .catch((err) => {
-        setError(err?.error || "ERROR");
+        dispatch({ type: "setError", error: err?.error || "ERROR" });
       });
   }
   function onRegister(username) {
     fetchRegister(username)
       .then(() => {
-        setError("");
-        setPage(PAGE.LOGIN);
+        dispatch({ type: "toLoginPage" });
       })
       .catch((err) => {
-        setError(err?.error || "ERROR");
+        dispatch({ type: "setError", error: err?.error || "ERROR" });
       });
   }
 
   function onLogout() {
-    setError("");
-    setUsername("");
-    setLoginStatus(LOGIN_STATUS.NOT_LOGGED_IN);
-    setPage(PAGE.LOGIN);
+    dispatch({ type: "logout" });
     fetchLogout().catch((err) => {
-      setError(err?.error || "ERROR");
+      dispatch({ type: "setError", error: err?.error || "ERROR" });
     });
   }
 
   function onGetCards(setId) {
-    setIsPending(true);
+    dispatch({ type: "setPending", isPending: true });
     return fetchGetCardsBySetId(setId);
   }
 
   function onSelectSet(setId) {
-    setSelectedSetId(setId);
-    setPage(PAGE.CARDS);
+    dispatch({ type: "setPending", isPending: true });
+    dispatch({ type: "setPage", page: PAGE.CARDS });
 
     onGetCards(setId)
       .then((cards) => {
-        setIsPending(false);
-        setCards(cards);
+        dispatch({ type: "onGetCards", selectedSetId: setId, cards: cards });
       })
       .catch((err) => {
-        setIsPending(false);
-        setError(err?.error || "ERROR");
+        dispatch({ type: "setPending", isPending: false });
+        dispatch({ type: "setError", error: err?.error || "ERROR" });
       });
   }
+
   function onRefreshCards() {
-    if (!selectedSetId) {
-      setError("No set selected");
+    if (!state.selectedSetId) {
+      dispatch({ type: "setError", error: err?.error || "ERROR" });
       return;
     }
+    dispatch({ type: "setPending", isPending: true });
+    dispatch({ type: "setPage", page: PAGE.CARDS });
 
-    onGetCards(selectedSetId)
+    onGetCards(state.selectedSetId)
       .then((cards) => {
-        setCards(cards);
-
-        setError("");
-        setIsPending(false);
+        dispatch({
+          type: "onGetCards",
+          selectedSetId: state.selectedSetId,
+          cards: cards,
+        });
       })
       .catch((err) => {
-        setError(err?.error || "ERROR");
-        setIsPending(false);
+        dispatch({ type: "setPending", isPending: false });
+        dispatch({ type: "setError", error: err?.error || "ERROR" });
       });
   }
-  function onExit() {
-    setPage(PAGE.CARDS);
-    setIsPending(true);
-    onGetCards(selectedSetId)
+
+  function onExitPractice() {
+    dispatch({ type: "setPending", isPending: true });
+    dispatch({ type: "setPage", page: PAGE.CARDS });
+
+    onGetCards(state.selectedSetId)
       .then((cards) => {
-        setIsPending(false);
-        setCards(cards);
+        dispatch({
+          type: "onGetCards",
+          selectedSetId: state.selectedSetId,
+          cards: cards,
+        });
       })
       .catch((err) => {
-        setIsPending(false);
-        setError(err?.error || "ERROR");
+        dispatch({ type: "setPending", isPending: false });
+        dispatch({ type: "setError", error: err?.error || "ERROR" });
       });
   }
+
   function onPractice() {
-    setPage(PAGE.PRACTICE);
+    dispatch({ type: "onPractice" });
     return;
   }
+
   return (
     <div className="app">
       <main>
-        {error && <Status error={error} />}
-        {loginStatus === LOGIN_STATUS.NOT_LOGGED_IN && page === PAGE.LOGIN && (
-          <LoginPage onLogin={onLogin} setPage={setPage} />
-        )}
-        {loginStatus === LOGIN_STATUS.NOT_LOGGED_IN &&
-          page === PAGE.REGISTER && (
-            <RegsiterPage onRegister={onRegister} setPage={setPage} />
+        {state.error && <Status error={state.error} />}
+        {state.loginStatus === LOGIN_STATUS.NOT_LOGGED_IN &&
+          state.page === PAGE.LOGIN && (
+            <LoginPage onLogin={onLogin} dispatch={dispatch} />
           )}
-        {loginStatus === LOGIN_STATUS.IS_LOGGED_IN && (
+        {state.loginStatus === LOGIN_STATUS.NOT_LOGGED_IN &&
+          state.page === PAGE.REGISTER && (
+            <RegsiterPage onRegister={onRegister} dispatch={dispatch} />
+          )}
+        {state.loginStatus === LOGIN_STATUS.IS_LOGGED_IN && (
           <div className="content">
             <Controls onLogout={onLogout} onRefresh={onRefresh} />
-            <p>Hello, {username}</p>
-            {page === PAGE.CARD_SETS && (
+            <p>Hello, {state.username}</p>
+            {state.page === PAGE.CARD_SETS && (
               <CardSetPage
-                cardSets={cardSets}
-                isPending={isPending}
+                cardSets={state.cardSets}
+                isPending={state.isPending}
                 onSelectSet={onSelectSet}
                 onRefresh={onRefresh}
-                setError={setError}
+                setError={(err) => dispatch({ type: "setError", error: err })}
               />
             )}
-            {page === PAGE.CARDS && selectedSet && (
+            {state.page === PAGE.CARDS && selectedSet && (
               <CardsPage
-                cards={cards}
+                cards={state.cards}
                 title={selectedSet.title}
                 onPractice={onPractice}
                 onRefreshCards={onRefreshCards}
-                setError={setError}
-                isPending={isPending}
-                selectedSetId={selectedSetId}
+                setError={(err) => dispatch({ type: "setError", error: err })}
+                isPending={state.isPending}
+                selectedSetId={state.selectedSetId}
               />
             )}
-            {page === PAGE.PRACTICE && selectedSet && (
-              <PracticePage cards={cards} onExit={onExit} />
+            {state.page === PAGE.PRACTICE && selectedSet && (
+              <PracticePage
+                cards={state.cards}
+                onExitPractice={onExitPractice}
+              />
             )}
           </div>
         )}

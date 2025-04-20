@@ -26,8 +26,6 @@ export default function CardSetPage({
   let show;
   if (isPending) {
     show = SHOW.PENDING;
-  } else if (isAdding) {
-    show = SHOW.ADDING;
   } else if (!Object.keys(cardSets).length) {
     show = SHOW.EMPTY;
   } else {
@@ -73,14 +71,14 @@ export default function CardSetPage({
         <Loading className="cardSets__waiting">Loading Card Sets...</Loading>
       )}
 
-      {show === SHOW.ADDING ? (
+      {isAdding && (
         <AddCardSetForm
           onSubmit={handleAdd}
           onCancel={() => setIsAdding(false)}
         />
-      ) : (
-        <button onClick={() => setIsAdding(true)}>Add Set</button>
       )}
+
+      {!isAdding && <button onClick={() => setIsAdding(true)}>Add Set</button>}
 
       {show === SHOW.EMPTY && <p>You have no card sets yet. Try to add one!</p>}
 

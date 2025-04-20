@@ -2,7 +2,7 @@ import { useState } from "react";
 import FlashCard from "../components/FlashCard";
 import { fetchUpdateStats } from "../services/cardServices";
 
-export default function PracticePage({ cards, onExit }) {
+export default function PracticePage({ cards, onExitPractice }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [done, setDone] = useState(false);
@@ -34,7 +34,7 @@ export default function PracticePage({ cards, onExit }) {
           Correct: {correctCount} / {total} (
           {Math.round((correctCount / total) * 100)}%)
         </p>
-        <button onClick={onExit}>Back</button>
+        <button onClick={onExitPractice}>Back</button>
       </div>
     );
   }

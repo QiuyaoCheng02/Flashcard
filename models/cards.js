@@ -3,7 +3,8 @@ import { randomUUID as uuid } from "crypto";
 const cards = {};
 
 function generateCardId() {
-  return `card-${uuid()}`;
+  const id = uuid();
+  return `card-${id}`;
 }
 
 function createCard({ question, answer, createdBy }) {

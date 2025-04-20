@@ -1,22 +1,28 @@
 import { useState, useEffect } from "react";
-import { fetchLogin, fetchLogout, fetchSession } from "./services/authServices";
+import {
+  fetchLogin,
+  fetchLogout,
+  fetchSession,
+  fetchRegister,
+} from "./services/authServices";
 import { fetchGetCardsBySetId } from "./services/cardServices";
-import { fetchGetCardSet, fetchGetCardSets } from "./services/cardSetServices";
-
+import { fetchGetCardSets } from "./services/cardSetServices";
+import RegsiterPage from "./Pages/RegisterPage";
 import CardSetPage from "./Pages/CardSetPage";
 import CardsPage from "./Pages/CardsPage";
 import PracticePage from "./Pages/PracticePage";
 import "./App.css";
-import Login from "./Login";
+import LoginPage from "./Pages/LoginPage";
 import Status from "./Status";
 import { LOGIN_STATUS, PAGE, CLIENT, SERVER } from "./constants";
 import Controls from "./components/Controls";
+import FlashCard from "./components/FlashCard";
 
 function App() {
   const [loginStatus, setLoginStatus] = useState(LOGIN_STATUS.NOT_LOGGED_IN);
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
-  const [page, setPage] = useState("");
+  const [page, setPage] = useState(PAGE.LOGIN);
   const [cardSets, setCardSets] = useState([]);
   const [cards, setCards] = useState([]);
   const [selectedSetId, setSelectedSetId] = useState(null);
@@ -95,11 +101,22 @@ function App() {
         setError(err?.error || "ERROR");
       });
   }
+  function onRegister(username) {
+    fetchRegister(username)
+      .then(() => {
+        setError("");
+        setPage(PAGE.LOGIN);
+      })
+      .catch((err) => {
+        setError(err?.error || "ERROR");
+      });
+  }
 
   function onLogout() {
     setError("");
     setUsername("");
     setLoginStatus(LOGIN_STATUS.NOT_LOGGED_IN);
+    setPage(PAGE.LOGIN);
     fetchLogout().catch((err) => {
       setError(err?.error || "ERROR");
     });
@@ -144,11 +161,14 @@ function App() {
   }
   function onExit() {
     setPage(PAGE.CARDS);
+    setIsPending(true);
     onGetCards(selectedSetId)
       .then((cards) => {
+        setIsPending(false);
         setCards(cards);
       })
       .catch((err) => {
+        setIsPending(false);
         setError(err?.error || "ERROR");
       });
   }
@@ -160,9 +180,13 @@ function App() {
     <div className="app">
       <main>
         {error && <Status error={error} />}
-        {loginStatus === LOGIN_STATUS.NOT_LOGGED_IN && (
-          <Login onLogin={onLogin} />
+        {loginStatus === LOGIN_STATUS.NOT_LOGGED_IN && page === PAGE.LOGIN && (
+          <LoginPage onLogin={onLogin} setPage={setPage} />
         )}
+        {loginStatus === LOGIN_STATUS.NOT_LOGGED_IN &&
+          page === PAGE.REGISTER && (
+            <RegsiterPage onRegister={onRegister} setPage={setPage} />
+          )}
         {loginStatus === LOGIN_STATUS.IS_LOGGED_IN && (
           <div className="content">
             <Controls onLogout={onLogout} onRefresh={onRefresh} />

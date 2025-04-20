@@ -4,6 +4,8 @@ export const LOGIN_STATUS = {
   IS_LOGGED_IN: "loggedIn",
 };
 export const PAGE = {
+  LOGIN: "login",
+  REGISTER: "register",
   CARD_SETS: "card-sets",
   CARDS: "cards",
   PRACTICE: "practice",

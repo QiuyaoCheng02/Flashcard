@@ -15,6 +15,7 @@ app.use(express.json());
 //sessions
 app.get("/api/session", authController.checkSession);
 app.post("/api/session", authController.creatSession);
+app.post("/api/register", authController.registerSession);
 app.delete("/api/session", authController.endSession);
 
 //cards set

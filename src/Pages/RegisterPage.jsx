@@ -1,37 +1,45 @@
 import { useState } from "react";
+import { PAGE } from "../constants";
 import "./Login.css";
 
-function Login({ onLogin }) {
-  const [loginName, setLoginName] = useState("");
+function RegsiterPage({ onRegister, setPage }) {
+  const [RegisterName, setLoginName] = useState("");
 
   function handleLogin(e) {
     e.preventDefault();
 
-    if (loginName) {
-      const trimmedName = loginName.trim();
-      onLogin(trimmedName);
+    if (RegisterName) {
+      const trimmedName = RegisterName.trim();
+      onRegister(trimmedName);
     }
   }
 
   return (
     <div className="login-container">
-      <h2>Please Login to Start</h2>
+      <h2>Please Enter a Username to Sign Up</h2>
 
       <form
-        className="login-form"
+        className="register-form"
         onSubmit={(e) => {
           handleLogin(e);
         }}
       >
         <label htmlFor="username-input">Username:</label>
         <input
-          value={loginName}
+          value={RegisterName}
           onInput={(e) => setLoginName(e.target.value)}
           id="username-input"
           className="username-input"
         />
         <button type="submit" className="btn">
           Submit
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setPage(PAGE.LOGIN)}
+        >
+          Already Have an Account?
         </button>
       </form>
       <p className="hint-msg">
@@ -42,4 +50,4 @@ function Login({ onLogin }) {
   );
 }
 
-export default Login;
+export default RegsiterPage;

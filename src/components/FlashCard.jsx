@@ -8,16 +8,7 @@ export default function FlashCard({ card, index, total, onAnswer }) {
       <h3>
         Card {index + 1} / {total}
       </h3>
-      <div
-        className="card-box"
-        onClick={() => setIsFlipped(!isFlipped)}
-        style={{
-          cursor: "pointer",
-          border: "1px solid #ccc",
-          padding: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
+      <div className="card-box" onClick={() => setIsFlipped(!isFlipped)}>
         {isFlipped ? (
           <p>
             <strong>A:</strong> {card.answer}

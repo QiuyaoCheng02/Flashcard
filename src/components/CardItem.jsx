@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function CardItem({ card, onEdit, onDelete }) {
+export default function CardItem({ card, onEdit, onDelete, setId }) {
   const [isEditingQ, setIsEditingQ] = useState(false);
   const [isEditingA, setIsEditingA] = useState(false);
   const [editedQuestion, setEditedQuestion] = useState(card.question);
@@ -87,7 +87,7 @@ export default function CardItem({ card, onEdit, onDelete }) {
         )}
       </div>
 
-      <button onClick={() => onDelete(card.id)}>Delete</button>
+      <button onClick={() => onDelete(setId, card.id)}>Delete</button>
     </>
   );
 }

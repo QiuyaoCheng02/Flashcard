@@ -4,6 +4,8 @@ import { fetchCreateCard, fetchUpdateCard } from "../services/cardServices";
 import { useState } from "react";
 import { fetchRemoveCardFromSet } from "../services/cardSetServices";
 import Loading from "../Loading";
+import { ROLE } from "../constants";
+
 export default function CardsPage({
   cards,
   title,
@@ -12,6 +14,8 @@ export default function CardsPage({
   isPending,
   onRefreshCards,
   selectedSetId,
+  role,
+  createdBy,
 }) {
   const [isAdding, setIsAdding] = useState(false);
   const SHOW = {
@@ -71,6 +75,7 @@ export default function CardsPage({
   return (
     <div className="Cards-list">
       <h2>Cards in {title}</h2>
+      {role === ROLE.ADMIN && <p>Created By {createdBy}</p>}
       {show === SHOW.PENDING && (
         <Loading className="cardSets__waiting">Loading Cards...</Loading>
       )}
@@ -87,12 +92,19 @@ export default function CardsPage({
         <ul className="cards">
           {Object.values(cards).map((card) => (
             <li className="card" key={card.id}>
-              <CardItem card={card} onDelete={onDelete} onEdit={onEdit} />
+              <CardItem
+                card={card}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                setId={selectedSetId}
+              />
             </li>
           ))}
         </ul>
       )}
-      <button onClick={onPractice}>Start Practice</button>
+      {role !== ROLE.ADMIN && (
+        <button onClick={onPractice}>Start Practice</button>
+      )}
     </div>
   );
 }

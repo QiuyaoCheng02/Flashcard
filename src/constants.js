@@ -10,6 +10,10 @@ export const PAGE = {
   CARDS: "cards",
   PRACTICE: "practice",
 };
+export const ROLE = {
+  ADMIN: "admin",
+  USER: "user",
+};
 export const SERVER = {
   AUTH_MISSING: "auth-missing",
   AUTH_INSUFFICIENT: "auth-insufficient",

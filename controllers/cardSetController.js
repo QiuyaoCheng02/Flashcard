@@ -11,7 +11,20 @@ cardSetController.getCardSets = function (req, res) {
     res.status(401).json({ error: `auth-missing` });
     return;
   }
-  const sets = cardSets.getCardSetsByUser(username);
+
+  const user = users.getUser(username);
+  if (!user) {
+    res.status(401).json({ error: `auth-missing` });
+    return;
+  }
+
+  let sets;
+  if (user.role === "admin") {
+    sets = cardSets.getAllCardSets();
+  } else {
+    sets = cardSets.getCardSetsByUser(username);
+  }
+
   res.json({ sets });
 };
 

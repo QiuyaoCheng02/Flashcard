@@ -12,8 +12,12 @@ authController.checkSession = function (req, res) {
     res.status(401).json({ error: "auth-missing" });
     return;
   }
-
-  res.json({ username });
+  const user = users.getUser(username);
+  if (!user) {
+    res.status(401).json({ error: "auth-missing" });
+    return;
+  }
+  res.json(user);
 };
 
 authController.registerSession = function (req, res) {
@@ -36,7 +40,7 @@ authController.registerSession = function (req, res) {
   }
 
   const newUser = users.addUser(username);
-  res.status(201).json({ username: newUser.username });
+  res.status(201).json(newUser);
 };
 
 authController.creatSession = function (req, res) {
@@ -58,7 +62,7 @@ authController.creatSession = function (req, res) {
   const sid = sessions.addSession(username);
 
   res.cookie("sid", sid);
-  res.json({ username });
+  res.json(user);
 };
 
 authController.endSession = function (req, res) {

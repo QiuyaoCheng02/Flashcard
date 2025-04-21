@@ -2,6 +2,7 @@ import { useState } from "react";
 import AddCardSetForm from "../components/AddCardSetForm";
 import CardSetItem from "../components/CardSetItem";
 import Loading from "../Loading";
+import { ROLE } from "../constants";
 import {
   fetchCreateCardSet,
   fetchDeleteCardSet,
@@ -10,6 +11,7 @@ import {
 
 export default function CardSetPage({
   cardSets,
+  role,
   isPending,
   onSelectSet,
   onRefresh,
@@ -66,7 +68,8 @@ export default function CardSetPage({
 
   return (
     <div className="cardset-page">
-      <h2>My Card Sets</h2>
+      {role === ROLE.USER ? <h2>My Card Sets</h2> : <h2>All Card Sets</h2>}
+
       {show === SHOW.PENDING && (
         <Loading className="cardSets__waiting">Loading Card Sets...</Loading>
       )}
@@ -78,9 +81,11 @@ export default function CardSetPage({
         />
       )}
 
-      {!isAdding && <button onClick={() => setIsAdding(true)}>Add Set</button>}
+      {!isAdding && role !== ROLE.ADMIN && (
+        <button onClick={() => setIsAdding(true)}>Add Set</button>
+      )}
 
-      {show === SHOW.EMPTY && <p>You have no card sets yet. Try to add one!</p>}
+      {show === SHOW.EMPTY && <p>You have no card sets yet.</p>}
 
       {show === SHOW.CARDSETS && (
         <ul className="card-sets">
@@ -91,6 +96,7 @@ export default function CardSetPage({
                 onSelect={onSelectSet}
                 onDelete={onDelete}
                 onEdit={onEdit}
+                role={role}
               />
             </li>
           ))}

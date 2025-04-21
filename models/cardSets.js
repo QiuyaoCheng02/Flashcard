@@ -14,6 +14,9 @@ function getCardSetsByUser(username) {
 function getCardSetById(setId) {
   return cardSets[setId];
 }
+function getAllCardSets() {
+  return Object.values(cardSets);
+}
 
 function createCardSet(username, { title }) {
   const newSet = {
@@ -110,6 +113,7 @@ defaultSet2.cardIds.push(...defaultCardIds2);
 export default {
   getCardSetsByUser,
   getCardSetById,
+  getAllCardSets,
   createCardSet,
   updateCardSetTitle,
   updateBestScore,

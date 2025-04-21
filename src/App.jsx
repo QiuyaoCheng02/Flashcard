@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import {
   fetchLogin,
   fetchLogout,
@@ -14,12 +14,13 @@ import PracticePage from "./Pages/PracticePage";
 import "./App.css";
 import LoginPage from "./Pages/LoginPage";
 import Status from "./Status";
-import { LOGIN_STATUS, PAGE, CLIENT, SERVER } from "./constants";
+import { LOGIN_STATUS, PAGE, ROLE, CLIENT, SERVER } from "./constants";
 import Controls from "./components/Controls";
 
 const initState = {
   loginStatus: LOGIN_STATUS.NOT_LOGGED_IN,
   username: "",
+  role: "",
   page: PAGE.LOGIN,
   error: "",
   cardSets: [],
@@ -42,6 +43,7 @@ function reducer(state, action) {
         ...state,
         loginStatus: LOGIN_STATUS.IS_LOGGED_IN,
         username: action.username,
+        role: action.role,
         page: PAGE.CARD_SETS,
         cardSets: [],
         cards: [],
@@ -70,6 +72,16 @@ function reducer(state, action) {
         loginStatus: LOGIN_STATUS.NOT_LOGGED_IN,
         page: PAGE.LOGIN,
       };
+    case "onGetSets":
+      return {
+        ...state,
+        cardSets: action.cardSets,
+        cards: [],
+        selectedSetId: null,
+        error: "",
+        isPending: false,
+        isPracticing: false,
+      };
     case "onGetCards":
       return {
         ...state,
@@ -78,6 +90,7 @@ function reducer(state, action) {
         isPending: false,
         error: "",
       };
+
     case "onPractice":
       return {
         ...state,
@@ -116,7 +129,11 @@ function App() {
   function checkSession() {
     fetchSession()
       .then((session) => {
-        dispatch({ type: "login", username: session.username });
+        dispatch({
+          type: "login",
+          username: session.username,
+          role: session.role,
+        });
         return fetchGetCardSets();
       })
       .catch((err) => {
@@ -146,11 +163,7 @@ function App() {
     dispatch({ type: "setPending", isPending: true });
     fetchGetCardSets()
       .then(({ sets }) => {
-        dispatch({ type: "setCardSets", cardSets: sets });
-        dispatch({ type: "setPending", isPending: false });
-        dispatch({ type: "setCards", cards: [] });
-        dispatch({ type: "setSelectedSetId", selectedSetId: null });
-        dispatch({ type: "setPracticing", isPracticing: false });
+        dispatch({ type: "onGetSets", cardSets: sets });
       })
       .catch((err) => {
         dispatch({ type: "setPending", isPending: false });
@@ -161,8 +174,12 @@ function App() {
   function onLogin(username) {
     dispatch({ type: "setPending", isPending: true });
     fetchLogin(username)
-      .then(({ username }) => {
-        dispatch({ type: "login", username: username });
+      .then((user) => {
+        dispatch({
+          type: "login",
+          username: user.username,
+          role: user.role,
+        });
         onGetSet();
       })
       .catch((err) => {
@@ -265,10 +282,16 @@ function App() {
         {state.loginStatus === LOGIN_STATUS.IS_LOGGED_IN && (
           <div className="content">
             <Controls onLogout={onLogout} onRefresh={onRefresh} />
-            <p>Hello, {state.username}</p>
+            {state.role === ROLE.ADMIN ? (
+              <p>You are currently in ADMIN mode</p>
+            ) : (
+              <p>Hello, {state.username}</p>
+            )}
+
             {state.page === PAGE.CARD_SETS && (
               <CardSetPage
                 cardSets={state.cardSets}
+                role={state.role}
                 isPending={state.isPending}
                 onSelectSet={onSelectSet}
                 onRefresh={onRefresh}
@@ -278,6 +301,8 @@ function App() {
             {state.page === PAGE.CARDS && selectedSet && (
               <CardsPage
                 cards={state.cards}
+                createdBy={selectedSet.createdBy}
+                role={state.role}
                 title={selectedSet.title}
                 onPractice={onPractice}
                 onRefreshCards={onRefreshCards}
@@ -286,12 +311,14 @@ function App() {
                 selectedSetId={state.selectedSetId}
               />
             )}
-            {state.page === PAGE.PRACTICE && selectedSet && (
-              <PracticePage
-                cards={state.cards}
-                onExitPractice={onExitPractice}
-              />
-            )}
+            {state.page === PAGE.PRACTICE &&
+              selectedSet &&
+              state.role !== ROLE.ADMIN && (
+                <PracticePage
+                  cards={state.cards}
+                  onExitPractice={onExitPractice}
+                />
+              )}
           </div>
         )}
       </main>

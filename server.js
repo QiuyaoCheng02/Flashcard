@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import authController from "./controllers/authController.js";
 import cardController from "./controllers/cardController.js";
 import cardSetController from "./controllers/cardSetController.js";
+import "./models/defaultData.js";
 
 const app = express();
 

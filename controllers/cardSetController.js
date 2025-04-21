@@ -24,8 +24,13 @@ cardSetController.getCardSets = function (req, res) {
   } else {
     sets = cardSets.getCardSetsByUser(username);
   }
+  const totalCount = sets.length;
+  const page = Math.max(1, parseInt(req.query.page)) || 1;
+  const size = Math.min(100, Math.max(1, parseInt(req.query.size))) || 5;
 
-  res.json({ sets });
+  const paginatedSets = sets.slice((page - 1) * size, page * size);
+
+  res.json({ sets: paginatedSets, totalCount });
 };
 
 cardSetController.getCardSet = function (req, res) {

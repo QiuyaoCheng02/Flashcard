@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AddCardSetForm from "../components/AddCardSetForm";
 import CardSetItem from "../components/CardSetItem";
+import Pagination from "../components/Pagination";
 import Loading from "../Loading";
 import { ROLE } from "../constants";
 import {
@@ -15,9 +16,13 @@ export default function CardSetPage({
   isPending,
   onSelectSet,
   onRefresh,
+  onPageChange,
+  currentPage,
+  totalCount,
   setError,
 }) {
   const [isAdding, setIsAdding] = useState(false);
+
   const SHOW = {
     PENDING: "pending",
     EMPTY: "empty",
@@ -102,6 +107,12 @@ export default function CardSetPage({
           ))}
         </ul>
       )}
+      <Pagination
+        currentPage={currentPage}
+        totalCount={totalCount}
+        pageSize={5}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

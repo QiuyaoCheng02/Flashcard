@@ -1,5 +1,5 @@
-export function fetchGetCardSets() {
-  return fetch("/api/cardsets", {
+export function fetchGetCardSets(page = 1, size = 5) {
+  return fetch(`/api/cardsets?page=${page}&size=${size}`, {
     method: "GET",
     credentials: "include",
   })

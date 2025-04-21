@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer } from "react";
 import {
   fetchLogin,
   fetchLogout,
@@ -118,6 +118,11 @@ function reducer(state, action) {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initState);
+  //pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
+  const [totalCardSetCount, setTotalCardSetCount] = useState(0);
+
   const selectedSet = state.cardSets.find(
     (set) => set.id === state.selectedSetId
   );
@@ -159,11 +164,13 @@ function App() {
     onGetSet();
   }
 
-  function onGetSet() {
+  function onGetSet(page = 1) {
     dispatch({ type: "setPending", isPending: true });
-    fetchGetCardSets()
-      .then(({ sets }) => {
+    fetchGetCardSets(page, pageSize)
+      .then(({ sets, totalCount }) => {
         dispatch({ type: "onGetSets", cardSets: sets });
+        setTotalCardSetCount(totalCount);
+        setCurrentPage(page);
       })
       .catch((err) => {
         dispatch({ type: "setPending", isPending: false });
@@ -295,6 +302,9 @@ function App() {
                 isPending={state.isPending}
                 onSelectSet={onSelectSet}
                 onRefresh={onRefresh}
+                currentPage={currentPage}
+                totalCount={totalCardSetCount}
+                onPageChange={(page) => onGetSet(page)}
                 setError={(err) => dispatch({ type: "setError", error: err })}
               />
             )}

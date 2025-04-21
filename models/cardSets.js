@@ -1,5 +1,4 @@
 import { randomUUID as uuid } from "crypto";
-import { defaultCardIds1, defaultCardIds2 } from "./cards.js";
 
 const cardSets = {};
 
@@ -102,13 +101,6 @@ function getAverageAccuracy(setId) {
   }
   return set.stats.averageAccuracy;
 }
-
-//default card set
-const defaultSet1 = createCardSet("user1", { title: "Default Math Set" });
-defaultSet1.cardIds.push(...defaultCardIds1);
-
-const defaultSet2 = createCardSet("user2", { title: "Default Math Set" });
-defaultSet2.cardIds.push(...defaultCardIds2);
 
 export default {
   getCardSetsByUser,

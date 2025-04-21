@@ -57,31 +57,6 @@ function deleteCard(cardId) {
   return true;
 }
 
-const DefaultCard1 = createCard({
-  question: "2 + 2 = ?",
-  answer: "4",
-  createdBy: "user1",
-});
-
-const DefaultCard2 = createCard({
-  question: "5 × 3 = ?",
-  answer: "15",
-  createdBy: "user1",
-});
-const DefaultCard3 = createCard({
-  question: "2 + 2 = ?",
-  answer: "4",
-  createdBy: "user2",
-});
-
-const DefaultCard4 = createCard({
-  question: "5 × 3 = ?",
-  answer: "15",
-  createdBy: "user2",
-});
-export const defaultCardIds1 = [DefaultCard1.id, DefaultCard2.id];
-export const defaultCardIds2 = [DefaultCard3.id, DefaultCard4.id];
-
 export default {
   createCard,
   getCardById,

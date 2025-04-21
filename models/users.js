@@ -28,18 +28,6 @@ function addUser(username) {
 function getUser(username) {
   return users[username];
 }
-users["user1"] = {
-  username: "user1",
-  role: "user",
-};
-users["user2"] = {
-  username: "user2",
-  role: "user",
-};
-users["admin"] = {
-  username: "admin",
-  role: "admin",
-};
 
 export default {
   isValidUsername,

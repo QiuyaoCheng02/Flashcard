@@ -16,8 +16,8 @@ export function fetchGetCard(cardId) {
     });
 }
 
-export function fetchGetCardsBySetId(setId) {
-  return fetch(`/api/cardsets/${setId}/cards`, {
+export function fetchGetCardsBySetId(setId, page = 1, size = 5) {
+  return fetch(`/api/cardsets/${setId}/cards?page=${page}&size=${size}`, {
     method: "GET",
     credentials: "include",
   })

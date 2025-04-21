@@ -5,6 +5,7 @@ import { useState } from "react";
 import { fetchRemoveCardFromSet } from "../services/cardSetServices";
 import Loading from "../Loading";
 import { ROLE } from "../constants";
+import Pagination from "../components/Pagination";
 
 export default function CardsPage({
   cards,
@@ -16,6 +17,9 @@ export default function CardsPage({
   selectedSetId,
   role,
   createdBy,
+  currentCardPage,
+  totalCardCount,
+  onPageChange,
 }) {
   const [isAdding, setIsAdding] = useState(false);
   const SHOW = {
@@ -30,7 +34,7 @@ export default function CardsPage({
     show = SHOW.PENDING;
   } else if (isAdding) {
     show = SHOW.ADDING;
-  } else if (!Object.keys(cards).length) {
+  } else if (!Object.keys(cards || {}).length) {
     show = SHOW.EMPTY;
   } else {
     show = SHOW.CARDS;
@@ -105,6 +109,12 @@ export default function CardsPage({
       {role !== ROLE.ADMIN && (
         <button onClick={onPractice}>Start Practice</button>
       )}
+      <Pagination
+        currentPage={currentCardPage}
+        totalCount={totalCardCount}
+        pageSize={5}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

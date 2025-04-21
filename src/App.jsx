@@ -119,9 +119,11 @@ function reducer(state, action) {
 function App() {
   const [state, dispatch] = useReducer(reducer, initState);
   //pagination
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentSetPage, setCurrentSetPage] = useState(1);
+  const [currentCardPage, setCurrentCardPage] = useState(1);
   const pageSize = 5;
   const [totalCardSetCount, setTotalCardSetCount] = useState(0);
+  const [totalCardCount, setTotalCardCount] = useState(0);
 
   const selectedSet = state.cardSets.find(
     (set) => set.id === state.selectedSetId
@@ -139,7 +141,7 @@ function App() {
           username: session.username,
           role: session.role,
         });
-        return fetchGetCardSets();
+        return fetchGetCardSets(1, pageSize);
       })
       .catch((err) => {
         if (err?.error === SERVER.AUTH_MISSING) {
@@ -147,8 +149,10 @@ function App() {
         }
         return Promise.reject(err);
       })
-      .then(({ sets }) => {
+      .then(({ sets, totalCount }) => {
         dispatch({ type: "setCardSets", cardSets: sets });
+        setTotalCardSetCount(totalCount);
+        setCurrentSetPage(1);
       })
       .catch((err) => {
         if (err?.error === CLIENT.NO_SESSION) {
@@ -170,7 +174,7 @@ function App() {
       .then(({ sets, totalCount }) => {
         dispatch({ type: "onGetSets", cardSets: sets });
         setTotalCardSetCount(totalCount);
-        setCurrentPage(page);
+        setCurrentSetPage(page);
       })
       .catch((err) => {
         dispatch({ type: "setPending", isPending: false });
@@ -210,23 +214,25 @@ function App() {
     });
   }
 
-  function onGetCards(setId) {
+  function onGetCards(setId, page = 1) {
     dispatch({ type: "setPending", isPending: true });
-    return fetchGetCardsBySetId(setId);
+    fetchGetCardsBySetId(setId, page, pageSize)
+      .then(({ cards, totalCount }) => {
+        dispatch({ type: "onGetCards", selectedSetId: setId, cards: cards });
+        setTotalCardCount(totalCount);
+        setCurrentCardPage(page);
+      })
+      .catch((err) => {
+        dispatch({ type: "setPending", isPending: false });
+        dispatch({ type: "setError", error: err?.error || "ERROR" });
+      });
   }
 
   function onSelectSet(setId) {
     dispatch({ type: "setPending", isPending: true });
     dispatch({ type: "setPage", page: PAGE.CARDS });
 
-    onGetCards(setId)
-      .then((cards) => {
-        dispatch({ type: "onGetCards", selectedSetId: setId, cards: cards });
-      })
-      .catch((err) => {
-        dispatch({ type: "setPending", isPending: false });
-        dispatch({ type: "setError", error: err?.error || "ERROR" });
-      });
+    return onGetCards(setId);
   }
 
   function onRefreshCards() {
@@ -237,36 +243,14 @@ function App() {
     dispatch({ type: "setPending", isPending: true });
     dispatch({ type: "setPage", page: PAGE.CARDS });
 
-    onGetCards(state.selectedSetId)
-      .then((cards) => {
-        dispatch({
-          type: "onGetCards",
-          selectedSetId: state.selectedSetId,
-          cards: cards,
-        });
-      })
-      .catch((err) => {
-        dispatch({ type: "setPending", isPending: false });
-        dispatch({ type: "setError", error: err?.error || "ERROR" });
-      });
+    return onGetCards(state.selectedSetId);
   }
 
   function onExitPractice() {
     dispatch({ type: "setPending", isPending: true });
     dispatch({ type: "setPage", page: PAGE.CARDS });
 
-    onGetCards(state.selectedSetId)
-      .then((cards) => {
-        dispatch({
-          type: "onGetCards",
-          selectedSetId: state.selectedSetId,
-          cards: cards,
-        });
-      })
-      .catch((err) => {
-        dispatch({ type: "setPending", isPending: false });
-        dispatch({ type: "setError", error: err?.error || "ERROR" });
-      });
+    return onGetCards(state.selectedSetId);
   }
 
   function onPractice() {
@@ -302,7 +286,7 @@ function App() {
                 isPending={state.isPending}
                 onSelectSet={onSelectSet}
                 onRefresh={onRefresh}
-                currentPage={currentPage}
+                currentPage={currentSetPage}
                 totalCount={totalCardSetCount}
                 onPageChange={(page) => onGetSet(page)}
                 setError={(err) => dispatch({ type: "setError", error: err })}
@@ -316,6 +300,9 @@ function App() {
                 title={selectedSet.title}
                 onPractice={onPractice}
                 onRefreshCards={onRefreshCards}
+                currentCardPage={currentCardPage}
+                totalCardCount={totalCardCount}
+                onPageChange={(page) => onGetCards(state.selectedSetId, page)}
                 setError={(err) => dispatch({ type: "setError", error: err })}
                 isPending={state.isPending}
                 selectedSetId={state.selectedSetId}

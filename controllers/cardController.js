@@ -40,7 +40,12 @@ cardController.getCardsBySet = function (req, res) {
   }
 
   const allCards = cards.getCardsByIds(set.cardIds || []);
-  res.json(allCards);
+  const totalCount = allCards.length;
+  const page = Math.max(1, parseInt(req.query.page)) || 1;
+  const size = Math.min(100, Math.max(1, parseInt(req.query.size))) || 5;
+
+  const paginatedCards = allCards.slice((page - 1) * size, page * size);
+  res.json({ cards: paginatedCards, totalCount });
 };
 
 cardController.createCard = function (req, res) {

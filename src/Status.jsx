@@ -1,13 +1,11 @@
-import { MESSAGES } from './constants';
+import { MESSAGES } from "./constants";
 
 function Status({ error }) {
+  const message =
+    MESSAGES[typeof error === "string" ? error : error?.error] ||
+    error?.message ||
+    MESSAGES.default;
 
-  const message = MESSAGES[error] || MESSAGES.default;
-  return (
-    <div className="status">
-      {error && message}
-    </div>
-  );
+  return <div className="status">{message}</div>;
 }
-
 export default Status;

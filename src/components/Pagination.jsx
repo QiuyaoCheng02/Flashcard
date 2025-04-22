@@ -1,3 +1,6 @@
+import previousIcon from "../assets/previous.png";
+import nextIcon from "../assets/next.png";
+
 export default function Pagination({
   currentPage,
   totalCount,
@@ -13,17 +16,19 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        className="btn-icon"
       >
-        Previous
+        <img src={previousIcon} alt="previous" />
       </button>
       <span>
-        Page {currentPage} of {totalPages}
+        {currentPage} / {totalPages}
       </span>
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        className="btn-icon"
       >
-        Next
+        <img src={nextIcon} alt="next" />
       </button>
     </div>
   );

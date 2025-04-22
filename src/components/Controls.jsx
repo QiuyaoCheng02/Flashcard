@@ -1,9 +1,6 @@
-function Controls({ onLogout, onRefresh }) {
+function Controls({ onLogout }) {
   return (
-    <div className="controls">
-      <button onClick={onRefresh} className="refresh-btn btn">
-        Refresh
-      </button>
+    <div className="auth-control">
       <button onClick={onLogout} className="logout-btn btn">
         Logout
       </button>

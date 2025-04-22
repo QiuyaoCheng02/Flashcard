@@ -23,12 +23,6 @@ function createCardSet(username, { title }) {
     title,
     createdBy: username,
     cardIds: [],
-    bestScore: null,
-    isPublic: false,
-    stats: {
-      totalAttempts: 0,
-      averageAccuracy: 0,
-    },
   };
 
   cardSets[newSet.id] = newSet;
@@ -42,16 +36,6 @@ function updateCardSetTitle(setId, newTitle) {
   }
   set.title = newTitle;
   return set;
-}
-
-function updateBestScore(setId, score) {
-  const set = getCardSetById(setId);
-  if (!set) {
-    return null;
-  }
-  if (set.bestScore === null || score > set.bestScore) {
-    set.bestScore = score;
-  }
 }
 
 function addCardToSet(setId, cardId) {
@@ -80,38 +64,13 @@ function removeCardFromSet(setId, cardId) {
   return true;
 }
 
-function recordAccuracy(setId, newAccuracy) {
-  const set = getCardSetById(setId);
-  if (!set) {
-    return null;
-  }
-  const { totalAttempts, averageAccuracy } = set.stats;
-  set.stats.totalAttempts += 1;
-  set.stats.averageAccuracy =
-    (averageAccuracy * totalAttempts + newAccuracy) / set.stats.totalAttempts;
-}
-
-function getAverageAccuracy(setId) {
-  const set = getCardSetById(setId);
-  if (!set) {
-    return null;
-  }
-  if (set.stats.totalAttempts === 0) {
-    return "no attempts yet!";
-  }
-  return set.stats.averageAccuracy;
-}
-
 export default {
   getCardSetsByUser,
   getCardSetById,
   getAllCardSets,
   createCardSet,
   updateCardSetTitle,
-  updateBestScore,
   addCardToSet,
-  recordAccuracy,
-  getAverageAccuracy,
   deleteCardSet,
   removeCardFromSet,
 };

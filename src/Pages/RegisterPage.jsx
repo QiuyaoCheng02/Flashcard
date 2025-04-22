@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PAGE } from "../constants";
-import "./Login.css";
+import "./LoginPage.css";
 
 function RegsiterPage({ onRegister, dispatch }) {
   const [RegisterName, setLoginName] = useState("");
@@ -15,7 +15,7 @@ function RegsiterPage({ onRegister, dispatch }) {
   }
 
   return (
-    <div className="login-container">
+    <div className="register-container">
       <h2>Please Enter a Username to Sign Up</h2>
 
       <form
@@ -34,18 +34,19 @@ function RegsiterPage({ onRegister, dispatch }) {
         <button type="submit" className="btn">
           Submit
         </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={() => dispatch({ type: "toLoginPage" })}
-        >
-          Already Have an Account?
-        </button>
       </form>
       <p className="hint-msg">
         <span className="star-mark">* </span> Usernames must contain only
         letters, numbers, or underscores (_), and cannot be empty or "dog".
       </p>
+
+      <button
+        type="button"
+        className="to-login-btn btn"
+        onClick={() => dispatch({ type: "toLoginPage" })}
+      >
+        Already Have an Account?
+      </button>
     </div>
   );
 }

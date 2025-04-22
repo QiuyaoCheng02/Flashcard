@@ -34,7 +34,9 @@ export default function PracticePage({ cards, onExitPractice }) {
           Correct: {correctCount} / {total} (
           {Math.round((correctCount / total) * 100)}%)
         </p>
-        <button onClick={onExitPractice}>Back</button>
+        <button onClick={onExitPractice} className="btn">
+          Back
+        </button>
       </div>
     );
   }
@@ -47,7 +49,9 @@ export default function PracticePage({ cards, onExitPractice }) {
         total={total}
         onAnswer={handleAnswer}
       />
-      <button onClick={onExit}>Exit</button>
+      <button onClick={onExitPractice} className="btn">
+        Exit
+      </button>
     </div>
   );
 }

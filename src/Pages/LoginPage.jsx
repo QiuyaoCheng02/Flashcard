@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { PAGE } from "../constants";
-import "./Login.css";
+import { SERVER, CLIENT } from "../constants";
+
+import "./LoginPage.css";
 
 function LoginPage({ onLogin, dispatch }) {
   const [loginName, setLoginName] = useState("");
@@ -11,6 +12,11 @@ function LoginPage({ onLogin, dispatch }) {
     if (loginName) {
       const trimmedName = loginName.trim();
       onLogin(trimmedName);
+    } else {
+      dispatch({
+        type: "setError",
+        error: { error: CLIENT.REQUIRED_LOGIN_NAME },
+      });
     }
   }
 
@@ -34,17 +40,19 @@ function LoginPage({ onLogin, dispatch }) {
         <button type="submit" className="btn">
           Submit
         </button>
-        <button
-          type="button"
-          onClick={() => dispatch({ type: "toRegisterPage" })}
-        >
-          Create New Account
-        </button>
       </form>
+
       <p className="hint-msg">
         <span className="star-mark">* </span> Usernames must contain only
         letters, numbers, or underscores (_), and cannot be empty or "dog".
       </p>
+      <button
+        type="button"
+        onClick={() => dispatch({ type: "toRegisterPage" })}
+        className="register-btn btn"
+      >
+        Create New Account
+      </button>
     </div>
   );
 }

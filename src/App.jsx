@@ -14,7 +14,15 @@ import PracticePage from "./Pages/PracticePage";
 import "./App.css";
 import LoginPage from "./Pages/LoginPage";
 import Status from "./Status";
-import { LOGIN_STATUS, PAGE, ROLE, CLIENT, SERVER } from "./constants";
+import Notice from "./components/Notice";
+import {
+  LOGIN_STATUS,
+  PAGE,
+  ROLE,
+  CLIENT,
+  SERVER,
+  MESSAGES,
+} from "./constants";
 import Controls from "./components/Controls";
 
 const initState = {
@@ -118,6 +126,7 @@ function reducer(state, action) {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initState);
+  const [notice, setNotice] = useState("");
   //pagination
   const [currentSetPage, setCurrentSetPage] = useState(1);
   const [currentCardPage, setCurrentCardPage] = useState(1);
@@ -132,6 +141,13 @@ function App() {
   useEffect(() => {
     checkSession();
   }, []);
+
+  useEffect(() => {
+    if (notice) {
+      const timer = setTimeout(() => setNotice(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notice]);
 
   function checkSession() {
     fetchSession()
@@ -159,13 +175,16 @@ function App() {
           dispatch({ type: "logout" });
           return;
         }
-        dispatch({ type: "setError", error: err?.error || "ERROR" });
+        dispatch({
+          type: "setError",
+          error: err && typeof err === "object" ? err : { error: "ERROR" },
+        });
       });
   }
 
   function onRefresh() {
     dispatch({ type: "setError", error: "" });
-    onGetSet();
+    onGetSet(currentSetPage);
   }
 
   function onGetSet(page = 1) {
@@ -178,10 +197,30 @@ function App() {
       })
       .catch((err) => {
         dispatch({ type: "setPending", isPending: false });
-        dispatch({ type: "setError", error: err?.error || "ERROR" });
+
+        if (err?.error === "empty-set" || err?.error === "invalid-card") {
+          dispatch({
+            type: "onGetCards",
+            selectedSetId: actualSetId,
+            cards: [],
+          });
+          dispatch({ type: "setPage", page: PAGE.CARDS });
+          setTotalCardCount(0);
+          setCurrentCardPage(1);
+          return;
+        }
+
+        dispatch({
+          type: "setError",
+          error: err && typeof err === "object" ? err : { error: "ERROR" },
+        });
       });
   }
-
+  function onToSetPage() {
+    dispatch({ type: "setPending", isPending: true });
+    dispatch({ type: "setPage", page: PAGE.CARD_SETS });
+    onGetSet(currentSetPage);
+  }
   function onLogin(username) {
     dispatch({ type: "setPending", isPending: true });
     fetchLogin(username)
@@ -194,37 +233,59 @@ function App() {
         onGetSet();
       })
       .catch((err) => {
-        dispatch({ type: "setError", error: err?.error || "ERROR" });
+        dispatch({
+          type: "setError",
+          error: err && typeof err === "object" ? err : { error: "ERROR" },
+        });
       });
   }
   function onRegister(username) {
     fetchRegister(username)
       .then(() => {
+        setNotice("REGISTER_SUCCESS");
         dispatch({ type: "toLoginPage" });
       })
       .catch((err) => {
-        dispatch({ type: "setError", error: err?.error || "ERROR" });
+        dispatch({
+          type: "setError",
+          error: err && typeof err === "object" ? err : { error: "ERROR" },
+        });
       });
   }
 
   function onLogout() {
     dispatch({ type: "logout" });
     fetchLogout().catch((err) => {
-      dispatch({ type: "setError", error: err?.error || "ERROR" });
+      dispatch({
+        type: "setError",
+        error: err && typeof err === "object" ? err : { error: "ERROR" },
+      });
     });
   }
 
   function onGetCards(setId, page = 1) {
     dispatch({ type: "setPending", isPending: true });
+
     fetchGetCardsBySetId(setId, page, pageSize)
       .then(({ cards, totalCount }) => {
-        dispatch({ type: "onGetCards", selectedSetId: setId, cards: cards });
+        dispatch({ type: "onGetCards", selectedSetId: setId, cards });
         setTotalCardCount(totalCount);
         setCurrentCardPage(page);
       })
       .catch((err) => {
         dispatch({ type: "setPending", isPending: false });
-        dispatch({ type: "setError", error: err?.error || "ERROR" });
+
+        if (err?.error === "empty-set") {
+          dispatch({ type: "onGetCards", selectedSetId: setId, cards: [] });
+          setTotalCardCount(0);
+          setCurrentCardPage(1);
+          return;
+        }
+
+        dispatch({
+          type: "setError",
+          error: err && typeof err === "object" ? err : { error: "ERROR" },
+        });
       });
   }
 
@@ -232,35 +293,71 @@ function App() {
     dispatch({ type: "setPending", isPending: true });
     dispatch({ type: "setPage", page: PAGE.CARDS });
 
-    return onGetCards(setId);
+    return onGetCards(setId, currentCardPage);
   }
 
   function onRefreshCards() {
     if (!state.selectedSetId) {
-      dispatch({ type: "setError", error: err?.error || "ERROR" });
+      dispatch({
+        type: "setError",
+        error: err && typeof err === "object" ? err : { error: "ERROR" },
+      });
       return;
     }
     dispatch({ type: "setPending", isPending: true });
     dispatch({ type: "setPage", page: PAGE.CARDS });
 
-    return onGetCards(state.selectedSetId);
+    return onGetCards(state.selectedSetId, currentCardPage);
   }
 
   function onExitPractice() {
     dispatch({ type: "setPending", isPending: true });
     dispatch({ type: "setPage", page: PAGE.CARDS });
 
-    return onGetCards(state.selectedSetId);
+    return onGetCards(state.selectedSetId, currentCardPage);
   }
 
-  function onPractice() {
-    dispatch({ type: "onPractice" });
-    return;
+  function onPractice(setId) {
+    const actualSetId = setId || state.selectedSetId;
+
+    if (!actualSetId) {
+      dispatch({ type: "setError", error: "No card set selected" });
+      return;
+    }
+
+    dispatch({ type: "setPending", isPending: true });
+
+    fetchGetCardsBySetId(actualSetId, 1, pageSize)
+      .then(({ cards }) => {
+        dispatch({ type: "onGetCards", selectedSetId: actualSetId, cards });
+        dispatch({ type: "onPractice" });
+      })
+      .catch((err) => {
+        dispatch({ type: "setPending", isPending: false });
+
+        if (err?.error === "empty-set" || err?.error === "invalid-card") {
+          dispatch({
+            type: "onGetCards",
+            selectedSetId: actualSetId,
+            cards: [],
+          });
+          dispatch({ type: "setPage", page: PAGE.CARDS });
+          setTotalCardCount(0);
+          setCurrentCardPage(1);
+          return;
+        }
+
+        dispatch({
+          type: "setError",
+          error: err && typeof err === "object" ? err : { error: "ERROR" },
+        });
+      });
   }
 
   return (
     <div className="app">
       <main>
+        {notice && <Notice message={notice} />}
         {state.error && <Status error={state.error} />}
         {state.loginStatus === LOGIN_STATUS.NOT_LOGGED_IN &&
           state.page === PAGE.LOGIN && (
@@ -290,6 +387,7 @@ function App() {
                 totalCount={totalCardSetCount}
                 onPageChange={(page) => onGetSet(page)}
                 setError={(err) => dispatch({ type: "setError", error: err })}
+                onPractice={onPractice}
               />
             )}
             {state.page === PAGE.CARDS && selectedSet && (
@@ -298,7 +396,7 @@ function App() {
                 createdBy={selectedSet.createdBy}
                 role={state.role}
                 title={selectedSet.title}
-                onPractice={onPractice}
+                onPractice={() => onPractice(state.selectedSetId)}
                 onRefreshCards={onRefreshCards}
                 currentCardPage={currentCardPage}
                 totalCardCount={totalCardCount}
@@ -306,6 +404,7 @@ function App() {
                 setError={(err) => dispatch({ type: "setError", error: err })}
                 isPending={state.isPending}
                 selectedSetId={state.selectedSetId}
+                onToSetPage={onToSetPage}
               />
             )}
             {state.page === PAGE.PRACTICE &&

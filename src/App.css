@@ -17,6 +17,11 @@
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+.auth-control {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
 .controls {
   display: flex;
   justify-content: space-between;
@@ -24,6 +29,7 @@
 }
 .btn {
   min-width: 80px;
+
   height: 30px;
   background-color: #a05a2c;
   color: white;
@@ -41,9 +47,31 @@
   background-color: #8a4b08;
   transform: scale(1.05);
 }
+.btn-icon img {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.btn-icon {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+.btn-icon:hover {
+  background-color: #dedede;
+  border-radius: 4px;
+}
 h2 {
   margin-top: 0;
 }
 .status {
   color: red;
+}
+.pagination {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
 }

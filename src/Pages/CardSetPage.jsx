@@ -4,6 +4,8 @@ import CardSetItem from "../components/CardSetItem";
 import Pagination from "../components/Pagination";
 import Loading from "../Loading";
 import { ROLE } from "../constants";
+import "../components/CardSetItem.css";
+
 import {
   fetchCreateCardSet,
   fetchDeleteCardSet,
@@ -20,6 +22,7 @@ export default function CardSetPage({
   currentPage,
   totalCount,
   setError,
+  onPractice,
 }) {
   const [isAdding, setIsAdding] = useState(false);
 
@@ -27,7 +30,6 @@ export default function CardSetPage({
     PENDING: "pending",
     EMPTY: "empty",
     CARDSETS: "cardsets",
-    ADDING: "adding",
   };
 
   let show;
@@ -87,7 +89,9 @@ export default function CardSetPage({
       )}
 
       {!isAdding && role !== ROLE.ADMIN && (
-        <button onClick={() => setIsAdding(true)}>Add Set</button>
+        <button onClick={() => setIsAdding(true)} className="btn">
+          Add Set
+        </button>
       )}
 
       {show === SHOW.EMPTY && <p>You have no card sets yet.</p>}
@@ -95,13 +99,14 @@ export default function CardSetPage({
       {show === SHOW.CARDSETS && (
         <ul className="card-sets">
           {Object.values(cardSets).map((cardSet) => (
-            <li className="cardSet" key={cardSet.id}>
+            <li className="card-set" key={cardSet.id}>
               <CardSetItem
                 cardSet={cardSet}
                 onSelect={onSelectSet}
                 onDelete={onDelete}
                 onEdit={onEdit}
                 role={role}
+                onPractice={onPractice}
               />
             </li>
           ))}

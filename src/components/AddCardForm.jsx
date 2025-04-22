@@ -1,5 +1,8 @@
 // AddCardSetForm.jsx
 import { useState } from "react";
+import "./CardItem.css";
+import saveIcon from "../assets/save.png";
+import cancelIcon from "../assets/cancel.png";
 
 export default function AddCardForm({ onSubmit, onCancel }) {
   const [question, setQuestion] = useState("");
@@ -17,7 +20,7 @@ export default function AddCardForm({ onSubmit, onCancel }) {
   }
 
   return (
-    <form className="add-cardset-form" onSubmit={handleSubmit}>
+    <form className="add-card-form" onSubmit={handleSubmit}>
       <label htmlFor="question-input">
         Q:
         <input
@@ -36,9 +39,11 @@ export default function AddCardForm({ onSubmit, onCancel }) {
           id="answer-input"
         />
       </label>
-      <button type="submit">Add</button>
-      <button type="button" onClick={onCancel}>
-        Cancel
+      <button type="submit" className="btn-icon">
+        <img src={saveIcon} alt="save" />
+      </button>
+      <button type="button" onClick={onCancel} className="btn-icon">
+        <img src={cancelIcon} alt="cancel" />
       </button>
     </form>
   );

@@ -18,6 +18,7 @@ cardController.getCard = function (req, res) {
     res
       .status(404)
       .json({ error: `noSuchId`, message: `No Card with id ${cardId}` });
+    return;
   }
   res.json(card);
 };
@@ -30,6 +31,7 @@ cardController.getCardsBySet = function (req, res) {
     res.status(401).json({ error: `auth-missing` });
     return;
   }
+
   const { setId } = req.params;
   const set = cardSets.getCardSetById(setId);
   if (!set) {
@@ -39,12 +41,23 @@ cardController.getCardsBySet = function (req, res) {
     return;
   }
 
-  const allCards = cards.getCardsByIds(set.cardIds || []);
+  if (!set.cardIds || set.cardIds.length === 0) {
+    res.status(404).json({ error: `empty-set` });
+    return;
+  }
+
+  const allCards = cards.getCardsByIds(set.cardIds) || [];
+
+  if (!Array.isArray(allCards) || allCards.length === 0) {
+    res.status(404).json({ error: "invalid-card" });
+    return;
+  }
   const totalCount = allCards.length;
+
   const page = Math.max(1, parseInt(req.query.page)) || 1;
   const size = Math.min(100, Math.max(1, parseInt(req.query.size))) || 5;
-
   const paginatedCards = allCards.slice((page - 1) * size, page * size);
+
   res.json({ cards: paginatedCards, totalCount });
 };
 

@@ -1,5 +1,7 @@
 // AddCardSetForm.jsx
 import { useState } from "react";
+import saveIcon from "../assets/save.png";
+import cancelIcon from "../assets/cancel.png";
 
 export default function AddCardSetForm({ onSubmit, onCancel }) {
   const [title, setTitle] = useState("");
@@ -26,9 +28,11 @@ export default function AddCardSetForm({ onSubmit, onCancel }) {
           id="title-input"
         />
       </label>
-      <button type="submit">Add</button>
-      <button type="button" onClick={onCancel}>
-        Cancel
+      <button type="submit" className="btn-icon">
+        <img src={saveIcon} alt="save" />
+      </button>
+      <button type="button" onClick={onCancel} className="btn-icon">
+        <img src={cancelIcon} alt="cancel" />
       </button>
     </form>
   );

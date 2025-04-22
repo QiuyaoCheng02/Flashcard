@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { ROLE } from "../constants";
+import "./CardSetItem.css";
+import editIcon from "../assets/edit.png";
+import saveIcon from "../assets/save.png";
+import cancelIcon from "../assets/cancel.png";
+import deleteIcon from "../assets/delete.png";
+import startIcon from "../assets/start.png";
 
 export default function CardSetItem({
   cardSet,
@@ -7,52 +13,67 @@ export default function CardSetItem({
   onSelect,
   onDelete,
   onEdit,
+  onPractice,
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(cardSet.title);
 
   return (
     <>
-      <div className="cardSet__row cardSet__top-row">
+      <>
         {isEditing ? (
           <>
             <input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
             />
+
             <button
               onClick={() => {
                 onEdit(cardSet.id, newTitle);
                 setIsEditing(false);
               }}
+              className="btn-icon"
             >
-              Save
+              <img src={saveIcon} alt="save" />
             </button>
-            <button onClick={() => setIsEditing(false)}>Cancel</button>
+            <button onClick={() => setIsEditing(false)} className="btn-icon">
+              <img src={cancelIcon} alt="cancel" />
+            </button>
           </>
         ) : (
           <>
-            <span>{cardSet.title}</span>
-            <button onClick={() => setIsEditing(true)}>Edit</button>
-            <button onClick={() => onDelete(cardSet.id)}>Delete</button>
+            <div className="edit-btns">
+              <button onClick={() => onDelete(cardSet.id)} className="btn-icon">
+                <img src={deleteIcon} alt="delete" />
+              </button>
+              {role !== ROLE.ADMIN && (
+                <button
+                  onClick={() => onPractice(cardSet.id)}
+                  className="btn-icon"
+                >
+                  <img src={startIcon} alt="Start Practice" />
+                </button>
+              )}
+            </div>
+
+            <div className="set-title">
+              <h3>{cardSet.title}</h3>
+              <button onClick={() => setIsEditing(true)} className="btn-icon">
+                <img src={editIcon} alt="edit" />
+              </button>
+            </div>
           </>
         )}
-      </div>
+      </>
 
       {role === ROLE.ADMIN && (
-        <div className="cardSet__row cardSet__middle-row">
-          <p className="cardSet__creator">Created by: {cardSet.createdBy}</p>
-        </div>
+        <p className="set-creater">Created by: {cardSet.createdBy}</p>
       )}
 
-      <div className="cardSet__row cardSet__bottom-row">
-        <button
-          className="view-set-btn btn"
-          onClick={() => onSelect(cardSet.id)}
-        >
-          View
-        </button>
-      </div>
+      <button className="view-set-btn btn" onClick={() => onSelect(cardSet.id)}>
+        View
+      </button>
     </>
   );
 }

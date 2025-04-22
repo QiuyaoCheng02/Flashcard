@@ -1,16 +1,19 @@
-.login-container {
+.login-container,
+.register-container {
   display: flex;
   flex-direction: column;
   width: 60%;
   min-width: 410px;
-  max-width: 530px;
+  max-width: 480px;
   margin: 0 auto;
   background-color: #fff3cd;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  align-items: center;
 }
-.login-form {
+.login-form,
+.register-form {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -25,6 +28,10 @@
   border: 1px solid #b08968;
   border-radius: 6px;
   transition: border 0.3s ease;
+}
+.register-btn,
+.to-login-btn {
+  width: 300px;
 }
 .error-msg,
 .star-mark {

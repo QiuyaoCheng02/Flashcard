@@ -1,0 +1,83 @@
+.top-controller {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+  gap: 1rem;
+}
+
+.btn-left,
+.btn-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-left {
+  justify-content: flex-start;
+}
+.btn-left .btn-icon img,
+.btn-right .btn-icon img {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.btn-right {
+  justify-content: flex-end;
+}
+.title-center h2 {
+  margin: 0px;
+}
+.card {
+  border: 1px solid #d6c7a1;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fdf6e3;
+  border-radius: 6px;
+  list-style: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+.cards {
+  padding: 0;
+}
+.set-creater {
+  font-size: 0.85rem;
+  color: #6c584c;
+  margin-left: 0.5rem;
+}
+.edit-btns {
+  display: flex;
+  justify-content: end;
+}
+.card-info {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
+}
+.card input {
+  padding: 0.3rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+.card .btn-icon {
+  margin: 0px;
+  border: 0px;
+}
+.add-card-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-card-form input {
+  padding: 0.3rem;
+  margin: 5px;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+.card button {
+  min-width: 0px;
+  margin: 5px;
+}

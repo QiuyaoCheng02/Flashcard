@@ -1,5 +1,6 @@
 import previousIcon from "../assets/previous.png";
 import nextIcon from "../assets/next.png";
+import "./Pagination.css";
 
 export default function Pagination({
   currentPage,

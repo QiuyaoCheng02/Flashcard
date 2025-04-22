@@ -70,8 +70,3 @@ h2 {
 .status {
   color: red;
 }
-.pagination {
-  display: flex;
-  width: 100%;
-  justify-content: space-around;
-}

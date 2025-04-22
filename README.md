@@ -18,7 +18,7 @@ Usernames must contain only letters, numbers, or underscores (`_`), and cannot b
 3. Log in with one of the built-in usernames listed above or register as a new user
 4. Users will see and manage only their own data; admins will see all data
 5. Click “Add Set” to start creating cards (users only)
-6. Click “Practice” to begin testing yourself with flashcards
+6. Click the Practice button ![practice](./assets/practice.png) to begin testing yourself with flashcards (Users only)
 
 ## Media
 

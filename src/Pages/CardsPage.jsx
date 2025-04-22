@@ -3,7 +3,7 @@ import AddCardForm from "../components/AddCardForm";
 import { fetchCreateCard, fetchUpdateCard } from "../services/cardServices";
 import { useState } from "react";
 import { fetchRemoveCardFromSet } from "../services/cardSetServices";
-import Loading from "../Loading";
+import Loading from "../components/Loading";
 import { ROLE } from "../constants";
 import "../components/CardItem.css";
 import backIcon from "../assets/back.png";
@@ -24,6 +24,7 @@ export default function CardsPage({
   totalCardCount,
   onPageChange,
   onToSetPage,
+  dispatch,
 }) {
   const [isAdding, setIsAdding] = useState(false);
   const SHOW = {
@@ -33,9 +34,10 @@ export default function CardsPage({
   };
 
   let show;
+
   if (isPending) {
     show = SHOW.PENDING;
-  } else if (!Object.keys(cards || {}).length) {
+  } else if (!cards || Object.keys(cards).length === 0) {
     show = SHOW.EMPTY;
   } else {
     show = SHOW.CARDS;
@@ -109,6 +111,7 @@ export default function CardsPage({
         <AddCardForm
           onSubmit={handleCreateCard}
           onCancel={() => setIsAdding(false)}
+          dispatch={dispatch}
         />
       )}
       {!isAdding && role !== ROLE.ADMIN && (
@@ -117,7 +120,7 @@ export default function CardsPage({
         </button>
       )}
 
-      {show === SHOW.EMPTY && <p>You have no card sets yet. Try to add one!</p>}
+      {show === SHOW.EMPTY && <p>There is no card in this set.</p>}
       {show === SHOW.CARDS && (
         <ul className="cards">
           {Object.values(cards).map((card) => (
@@ -127,6 +130,7 @@ export default function CardsPage({
                 onDelete={onDelete}
                 onEdit={onEdit}
                 setId={selectedSetId}
+                dispatch={dispatch}
               />
             </li>
           ))}

@@ -1,20 +1,25 @@
 // AddCardSetForm.jsx
 import { useState } from "react";
+import { CLIENT } from "../constants";
 import saveIcon from "../assets/save.png";
 import cancelIcon from "../assets/cancel.png";
+import "./AddCardSetForm.css";
 
-export default function AddCardSetForm({ onSubmit, onCancel }) {
+export default function AddCardSetForm({ onSubmit, onCancel, dispatch }) {
   const [title, setTitle] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (title) {
-      const trimmedTitle = title.trim();
-      onSubmit(trimmedTitle);
+    if (!title.trim()) {
+      dispatch({
+        type: "setError",
+        error: { error: CLIENT.REQUIRED_TITLE },
+      });
       return;
     }
-    setTitle("");
+
+    onSubmit(title.trim());
   }
 
   return (

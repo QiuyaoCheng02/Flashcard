@@ -2,7 +2,7 @@ import { useState } from "react";
 import AddCardSetForm from "../components/AddCardSetForm";
 import CardSetItem from "../components/CardSetItem";
 import Pagination from "../components/Pagination";
-import Loading from "../Loading";
+import Loading from "../components/Loading";
 import { ROLE } from "../constants";
 import "../components/CardSetItem.css";
 
@@ -23,6 +23,7 @@ export default function CardSetPage({
   totalCount,
   setError,
   onPractice,
+  dispatch,
 }) {
   const [isAdding, setIsAdding] = useState(false);
 
@@ -85,6 +86,7 @@ export default function CardSetPage({
         <AddCardSetForm
           onSubmit={handleAdd}
           onCancel={() => setIsAdding(false)}
+          dispatch={dispatch}
         />
       )}
 
@@ -107,6 +109,7 @@ export default function CardSetPage({
                 onEdit={onEdit}
                 role={role}
                 onPractice={onPractice}
+                dispatch={dispatch}
               />
             </li>
           ))}

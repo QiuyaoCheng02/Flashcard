@@ -56,7 +56,7 @@ authController.creatSession = function (req, res) {
   }
   const user = users.getUser(username);
   if (!user) {
-    res.status(401).json({ error: "auth-missing" });
+    res.status(401).json({ error: "user-not-found" });
     return;
   }
   const sid = sessions.addSession(username);

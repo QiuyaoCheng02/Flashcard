@@ -1,16 +1,35 @@
 import { useState } from "react";
+import { CLIENT } from "../constants";
 import "./CardItem.css";
 import editIcon from "../assets/edit.png";
 import saveIcon from "../assets/save.png";
 import cancelIcon from "../assets/cancel.png";
 import deleteIcon from "../assets/delete.png";
 
-export default function CardItem({ card, onEdit, onDelete, setId }) {
+export default function CardItem({ card, onEdit, onDelete, setId, dispatch }) {
   const [isEditingQ, setIsEditingQ] = useState(false);
   const [isEditingA, setIsEditingA] = useState(false);
   const [editedQuestion, setEditedQuestion] = useState(card.question);
   const [editedAnswer, setEditedAnswer] = useState(card.answer);
   function handleSave() {
+    if (isEditingQ && !editedQuestion.trim()) {
+      if (dispatch)
+        dispatch({
+          type: "setError",
+          error: { error: CLIENT.REQUIRED_QUESTION },
+        });
+      setEditedQuestion("");
+      return;
+    }
+    if (isEditingA && !editedAnswer.trim()) {
+      if (dispatch)
+        dispatch({
+          type: "setError",
+          error: { error: CLIENT.REQUIRED_ANSWER },
+        });
+      setEditedAnswer("");
+      return;
+    }
     const updates = {};
     if (isEditingQ && editedQuestion !== card.question) {
       updates.question = editedQuestion;

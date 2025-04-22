@@ -1,22 +1,36 @@
 // AddCardSetForm.jsx
 import { useState } from "react";
-import "./CardItem.css";
+import { CLIENT } from "../constants";
+import "./AddCardForm.css";
 import saveIcon from "../assets/save.png";
 import cancelIcon from "../assets/cancel.png";
 
-export default function AddCardForm({ onSubmit, onCancel }) {
+export default function AddCardForm({ onSubmit, onCancel, dispatch }) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (question && answer) {
-      onSubmit(question.trim(), answer.trim());
+    if (!question) {
+      if (dispatch)
+        dispatch({
+          type: "setError",
+          error: { error: CLIENT.REQUIRED_QUESTION },
+        });
+      setQuestion("");
       return;
     }
-    setQuestion("");
-    setAnswer("");
+    if (!answer) {
+      if (dispatch)
+        dispatch({
+          type: "setError",
+          error: { error: CLIENT.REQUIRED_ANSWER },
+        });
+      setAnswer("");
+      return;
+    }
+    onSubmit(question.trim(), answer.trim());
   }
 
   return (

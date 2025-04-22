@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ROLE } from "../constants";
+import { ROLE, CLIENT } from "../constants";
 import "./CardSetItem.css";
 import editIcon from "../assets/edit.png";
 import saveIcon from "../assets/save.png";
@@ -14,9 +14,21 @@ export default function CardSetItem({
   onDelete,
   onEdit,
   onPractice,
+  dispatch,
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(cardSet.title);
+
+  function handleSave() {
+    if (!newTitle.trim()) {
+      if (dispatch)
+        dispatch({ type: "setError", error: { error: CLIENT.REQUIRED_TITLE } });
+      setNewTitle("");
+      return;
+    }
+    onEdit(cardSet.id, newTitle);
+    setIsEditing(false);
+  }
 
   return (
     <>
@@ -28,13 +40,7 @@ export default function CardSetItem({
               onChange={(e) => setNewTitle(e.target.value)}
             />
 
-            <button
-              onClick={() => {
-                onEdit(cardSet.id, newTitle);
-                setIsEditing(false);
-              }}
-              className="btn-icon"
-            >
+            <button onClick={handleSave} className="btn-icon">
               <img src={saveIcon} alt="save" />
             </button>
             <button onClick={() => setIsEditing(false)} className="btn-icon">

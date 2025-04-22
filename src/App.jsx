@@ -13,16 +13,9 @@ import CardsPage from "./Pages/CardsPage";
 import PracticePage from "./Pages/PracticePage";
 import "./App.css";
 import LoginPage from "./Pages/LoginPage";
-import Status from "./Status";
+import Status from "./components/Status";
 import Notice from "./components/Notice";
-import {
-  LOGIN_STATUS,
-  PAGE,
-  ROLE,
-  CLIENT,
-  SERVER,
-  MESSAGES,
-} from "./constants";
+import { LOGIN_STATUS, PAGE, ROLE, CLIENT, SERVER } from "./constants";
 import Controls from "./components/Controls";
 
 const initState = {
@@ -149,7 +142,14 @@ function App() {
     }
   }, [notice]);
 
+  useEffect(() => {
+    if (state.error?.error === SERVER.AUTH_MISSING) {
+      dispatch({ type: "logout" });
+    }
+  }, [state.error]);
+
   function checkSession() {
+    dispatch({ type: "setPending", isPending: true });
     fetchSession()
       .then((session) => {
         dispatch({
@@ -157,20 +157,23 @@ function App() {
           username: session.username,
           role: session.role,
         });
+        dispatch({ type: "setPending", isPending: true });
         return fetchGetCardSets(1, pageSize);
       })
       .catch((err) => {
+        dispatch({ type: "setPending", isPending: false });
         if (err?.error === SERVER.AUTH_MISSING) {
           return Promise.reject({ error: CLIENT.NO_SESSION });
         }
         return Promise.reject(err);
       })
       .then(({ sets, totalCount }) => {
-        dispatch({ type: "setCardSets", cardSets: sets });
+        dispatch({ type: "onGetSets", cardSets: sets });
         setTotalCardSetCount(totalCount);
         setCurrentSetPage(1);
       })
       .catch((err) => {
+        dispatch({ type: "setPending", isPending: false });
         if (err?.error === CLIENT.NO_SESSION) {
           dispatch({ type: "logout" });
           return;
@@ -290,7 +293,6 @@ function App() {
   }
 
   function onSelectSet(setId) {
-    dispatch({ type: "setPending", isPending: true });
     dispatch({ type: "setPage", page: PAGE.CARDS });
 
     return onGetCards(setId, currentCardPage);
@@ -388,6 +390,7 @@ function App() {
                 onPageChange={(page) => onGetSet(page)}
                 setError={(err) => dispatch({ type: "setError", error: err })}
                 onPractice={onPractice}
+                dispatch={dispatch}
               />
             )}
             {state.page === PAGE.CARDS && selectedSet && (
@@ -405,6 +408,7 @@ function App() {
                 isPending={state.isPending}
                 selectedSetId={state.selectedSetId}
                 onToSetPage={onToSetPage}
+                dispatch={dispatch}
               />
             )}
             {state.page === PAGE.PRACTICE &&

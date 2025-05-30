@@ -52,7 +52,7 @@ export function fetchLogin(username) {
 }
 
 export function fetchRegister(username) {
-  return fetch("/api/register", {
+  return fetch("/api/users", {
     method: "POST",
     headers: new Headers({
       "content-type": "application/json",

@@ -16,7 +16,7 @@ authController.checkSession = function (req, res) {
   res.json({ username });
 };
 
-authController.registerSession = function (req, res) {
+authController.userRegister = function (req, res) {
   const username = req.body.username;
 
   if (!users.isValidUsername(username)) {
